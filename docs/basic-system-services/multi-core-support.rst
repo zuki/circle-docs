@@ -1,17 +1,17 @@
 .. _Multi-core support:
 
-Multi-core support
+マルチコアサポート
 ~~~~~~~~~~~~~~~~~~
 
-Beginning with the Raspberry Pi 2, four cores are provided by a Cortex-A CPU. Circle distinguishes between the primary core 0 and the secondary cores 1 to 3 in a way, that all system operations including interrupt handling are running on the primary core 0. The secondary cores are free to be used by the application. This allows to implement time-critical or time-consuming operations on the secondary cores, without being disturbed by interrupts or other system functions. The optional scheduler and all tasks are running on core 0 too (see :ref:`Multitasking`).
+Raspberry Pi 2から1つのCortex-A CPUが4つのコアを搭載するようになりました。Circleでは、割り込み処理などのすべてのシステム処理をプライマリコア0で実行するという風に、プライマリコア0とセカンダリコア1から3を区別しています。セカンダリコアはアプリケーションで自由に使用することができます。これにより、割り込みやその他のシステム機能に邪魔されることなく、セカンダリコア上でタイムクリティカルな処理や時間のかかる処理を実行することができます。オプションのスケジューラとすべてのタスクはコア0でも実行されます (:ref:`Multitasking` を参照してください) 。
 
-Circle supports multi-core applications by handling the start-up of the secondary cores with the class :ref:`CMultiCoreSupport`, with the synchronization class :ref:`CSpinLock` and with :ref:`Memory Barriers`.
+Circle では、セカンダリコアの起動を :ref:`CMultiCoreSupport` クラスと同期クラス :ref:`CSpinLock` および :ref:`Memory Barriers` で処理することによりマルチコアアプリケーションをサポートしています。
 
-The system option ``ARM_ALLOW_MULTI_CORE`` has to be defined to use multi-core support with the class ``CMultiCoreSupport``. For performance reasons this system option should not be defined for single core applications.
+``CMultiCoreSupport`` クラスによるマルチコアサポートを使用するにはシステムオプション ``ARM_ALLOW_MULTI_CORE`` を定義する必要があります。パフォーマンス上の理由から、シングルコアのアプリケーションではこのシステムオプションは定義しないでください。
 
-Further information on using the multi-core support is available in the file `doc/multicore.txt <https://github.com/rsta2/circle/blob/master/doc/multicore.txt>`_.
+マルチコアサポートの使用に関する詳細は `doc/multicore.txt <https://github.com/rsta2/circle/blob/master/doc/multicore.txt>`_ ファイルに記載されています。
 
-The sample programs `17-fractal` and `26-cpustress` can be build with multi-core support. A more complex multi-core example is the project `MiniSynth Pi <https://github.com/rsta2/minisynth/>`_.
+サンプルプログラム `17-fractal` と `26-cpustress` はマルチコア対応でビルドすることができます。より複雑なマルチコアの例として、プロジェクト `MiniSynth Pi <https://github.com/rsta2/minisynth/>`_ があります。
 
 .. _CMultiCoreSupport:
 
@@ -24,44 +24,45 @@ CMultiCoreSupport
 
 .. cpp:class:: CMultiCoreSupport
 
-If you want to use the secondary CPU cores in your application, you have to define a user class, which is derived from the class ``CMultiCoreSupport``.
+アプリケーションでセカンダリCPUコアを使用したい場合は ``CMultiCoreSupport`` クラスを継承したユーザクラスを定義する必要があります。
 
 .. cpp:function:: CMultiCoreSupport::CMultiCoreSupport (CMemorySystem *pMemorySystem)
 
-	Creates the instance of ``CMultiCoreSupport``. Must be invoked in the first place of the initializer list of the defined user class. The parameter ``pMemorySystem`` must be set to ``CMemorySystem::Get()``, which can be included from ``<circle/memory.h>``.
+	``CMultiCoreSupport`` のインスタンスを作成します。定義されたユーザークラスのイニシャライザリストの先頭で呼び出す必要があります。パラメータ ``pMemorySystem`` には  ``<circle/memory.h>`` からインクルードできる ``CMemorySystem::Get()`` を設定する必要があります。
 
 .. cpp:function:: boolean CMultiCoreSupport::Initialize (void)
 
-	Initializes the multi-core support and starts the secondary cores. It is important, that this method is called, when the other system initialization is already done. Normally it is invoked at the last method in ``CKernel::Run()``.
+	マルチコアサポートを初期化し、セカンダリーコアを開始します。このメソッドが呼ばれるのは、他のシステムの初期化がすでに終了済みであることが重要です。通常は ``CKernel::Run()`` の最後のメソッドとして呼び出します。
 
 .. cpp:function:: virtual void CMultiCoreSupport::Run (unsigned nCore) = 0
 
-	Overload this virtual method to define the entry for the secondary cores (1 to 3) into your application. It is invoked three times (once on each secondary core) with ``nCore`` being the number of the executing CPU core (1, 2 or 3).
+	アプリケーションにセカンダリコア（1～3）のエントリーを定義するにはこの仮想メソッドをオーバーロードします。 このメソッドは 実行するCPUコアの番号である ``nCore`` を
+	引数に3回（各セカンダリコアごとに1回）呼び出されます。
 
 .. important::
 
-	When a secondary core returns from ``Run()``, the CPU core is automatically halted and will sleep. For unused cores you can simply return from this method.
+	セカンダリコアが ``Run()`` から復帰するとCPUコアは自動的に停止し、スリープ状態になります。使用しないコアについては単にこのメソッドからリターンすれば良いです。
 
 .. note::
 
-	This method is not executed from the primary CPU core 0 by default. If you want to handle all CPU cores at the same place, you have to explicitly call the ``Run()`` method of your user defined multi-core class from ``CKernel::Run()`` with the parameter 0.
+	このメソッドはデフォルトではプライマリCPUコア0からは実行されません。すべてのCPUコアを同時に処理したい場合は ``CKernel::Run()`` から継承したユーザ定義のマルチコアクラスの ``Run()`` メソッドをパラメータ 0 で明示的に呼び出す必要があります。
 
 .. cpp:function:: static unsigned CMultiCoreSupport::ThisCore (void)
 
-	Returns the number of the CPU core (0, 1, 2 or 3), which called this method.
+	このメソッドを呼び出したCPUコアの番号（0、1、2、3）を返します。
 
 .. cpp:function:: static void CMultiCoreSupport::HaltAll (void)
 
-	In a multi-core environment this method halts all CPU cores. The current execution will be interrupted using an Inter-Processor Interrupt (IPI) and each core calls the ``halt()`` function in turn.
+	マルチコア環境において、このメソッドはすべてのCPUコアを停止させます。現在の実行はプロセッサ間割り込み（IPI）を使って割り込みをかけられ、各コアは順番に ``halt()`` 関数を呼び出します。
 
 .. cpp:function:: static void CMultiCoreSupport::SendIPI (unsigned nCore, unsigned nIPI)
 
-	Sends an Inter-Processor Interrupt (IPI) with the number ``nIPI`` to the core ``nCore`` (0, 1, 2 or 3). If this technique is used for application purposes, ``nIPI`` can have a user defined value from ``IPI_USER`` to ``IPI_MAX``.
+	コア ``nCore`` (0, 1, 2, 3) に番号 ``nIPI`` のプロセッサ間割り込み (IPI) を送信します。このテクニックをアプリケーションで使用する場合、 ``nIPI`` には ``IPI_USER`` から ``IPI_MAX`` までのユーザ定義の値を設定することができます。
 
 .. cpp:function:: virtual void CMultiCoreSupport::IPIHandler (unsigned nCore, unsigned nIPI)
 
-	Overload this virtual method to receive Inter-Processor Interrupts (IPI) from other CPU cores. ``nCore`` is the number of the CPU core, which received the IPI and which is executing ``IPIHandler()``. ``nIPI`` is the IPI number specified in the call to ``CMultiCoreSupport::SendIPI()``.
+	他のCPUコアからプロセッサ間割り込み（IPI）を受信するにはこの仮想メソッドをオーバーロードしてください。 ``nCore`` はIPIを受信して ``IPIHandler()`` を実行するCPUコアの番号です。 ``nIPI`` は ``CMultiCoreSupport::SendIPI()`` の呼び出しで指定された IPI 番号です。
 
 .. important::
 
-	Be sure to pass calls to this method further to ``CMultiCoreSupport::IPIHandler()`` with the same parameters, if ``nIPI < IPI_USER``. Otherwise the ``CMultiCoreSupport::HaltAll()`` method will not work, which is also invoked on a system panic condition (abort exception, assertion failed).
+	``nIPI < IPI_USER`` の場合は ``CMultiCoreSupport::IPIHandler()`` をさらに呼び出す場合はこのメソッドと同じパラメータを渡すようにしてください。そうしないとシステムパニック状態(アボート例外、アサーション失敗)の際に呼び出される ``CMultiCoreSupport::HaltAll()`` メソッドは動作しません。

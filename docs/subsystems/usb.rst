@@ -1,11 +1,11 @@
 USB
 ~~~
 
-The USB (Universal Serial Bus) subsystem provides services and device drivers, which support the access to USB 2.0 and USB 3.0 (on the Raspberry Pi 4 and 5 only) devices. Essentially, this concerns drivers for the DWHCI OTG USB controller of the Raspberry Pi 1-3 and Zero (host and gadget mode) and the xHCI USB controller(s) of the Raspberry Pi 4, 400, 5 and Compute Module 4 (host mode only), USB device class drivers, some vendor specific USB device drivers and support classes for all these drivers.
+USB (Universal Serial Bus) サブシステムはUSB 2.0とUSB 3.0 (Raspberry Pi 4 のみ) のデバイスへのアクセスをサポートするサービスとデバイスドライバを提供します。ここでは、基本的に、Raspberry Pi 1-3とZeroのDWHCI OTG USBコントローラ（ホストモードとgadgetモード）とRaspberry Pi 4, 400, 5のxHCI USBコントローラ（ホストモードのみ）用のドライバ、USBデバイスクラスドライバ、いくつかのベンダー固有のUSBデバイスドライバ、これらすべてのドライバのサポートクラスを説明します。
 
-Most of the operations in this subsystem are hidden from applications behind device driver interfaces, which will be described in the :ref:`Devices` section. An application, which uses the USB, has especially to deal with the initialization of the USB support at system startup and optionally with detecting newly attached USB devices, while the system is running (USB plug-and-play). This section is limited to these topics.
+このサブシステムのほとんどの操作は :ref:`Devices` セクションで説明するように、デバイスドライバインターフェースの背後に隠れていてアプリケーションからは見えないようになっています。USBを使用するアプリケーションはシステム起動時のUSBサポートの初期化とオプションですがシステムの実行中に新しく接続されたUSBデバイスの検出（USBプラグアンドプレイ）に対処しなければなりません。このセクションではこれらのトピックに限定して説明します。
 
-Please read the file `doc/usb-plug-and-play.txt <https://github.com/rsta2/circle/blob/master/doc/usb-plug-and-play.txt>`_ for general information about the (optional) USB plug-and-play support in Circle.
+Circleの（オプションの）USBプラグアンドプレイサポートに関する一般的な情報については `doc/usb-plug-and-play.txt <https://github.com/rsta2/circle/blob/master/doc/usb-plug-and-play.txt>`_ を参照してください。
 
 .. important::
 
@@ -44,25 +44,25 @@ CUSBHCIDevice
 
 .. cpp:class:: CUSBHCIDevice : public CUSBHostController
 
-	This class is the base of the USB host support in a Circle application. To use USB in host mode, you should create a member of this class in the ``CKernel`` class of your application.
+	このクラスはCircleアプリケーションにおけるUSBホストサポートのベースとなるものです。USBをホストモードで使用するには、アプリケーションの ``CKernel`` クラス内にこのクラスのメンバを作成する必要があります。
 
 .. note::
 
-	Actually there is not really a class ``CUSBHCIDevice`` available in Circle. Instead, three classes ``CDWHCIDevice``, ``CXHCIDevice`` (both derived from ``CUSBHostController``) and ``CUSBSubSystem`` (on Raspberry Pi 5) exist for the respective USB host controllers of the target Raspberry Pi model, and ``CUSBHCIDevice`` is only an alias for these class names, defined as macro. To ensure, that an application can be built for each Raspberry Pi model, you should use the name ``CUSBHCIDevice`` only.
+	実はCircleには ``CUSBHCIDevice`` というクラスは用意されていません。その代わり、対象となるRaspberry PiモデルのUSBホストコントローラ用として ``CDWHCIDevice`` と ``CXHCIDevice`` （これらは ``CUSBHostController`` を継承）と ``CUSBSubSystem`` （Raspberry Pi 5用）の3つのクラスが存在し、 ``CUSBHCIDevice`` がこれらのクラスの別名としてマクロ定義されているだけです。Raspberry Piの各モデルに対応したアプリケーションを構築するために ``CUSBHCIDevice`` という名前だけを使用するべきです。
 
-	Some methods available via ``CUSBHCIDevice`` are defined in its base class :ref:`CUSBHostController` and can be called using a pointer to a ``CUSBHostController`` object too.
+	``CUSBHCIDevice`` で利用できるメソッドの一部は基底クラスである :ref:`CUSBHostController` で定義されており ``CUSBHostController`` オブジェクトへのポインタを使用して呼び出すこともできます。
 
 .. cpp:function:: CUSBHCIDevice::CUSBHCIDevice (CInterruptSystem *pInterruptSystem, CTimer *pTimer, boolean bPlugAndPlay = FALSE)
 
-	Creates an instance of this class. ``pInterruptSystem`` is a pointer to the interrupt system object and ``pTimer`` a pointer to the system timer object. ``bPlugAndPlay`` must be set to ``TRUE`` to enable the USB plug-and-play support. This is optional and requires further support by the application.
+	このクラスのインスタンスを作成します。 ``pInterruptSystem`` は割り込みシステムオブジェクトへのポインタ、 ``pTimer`` はシステムタイマオブジェクトへのポインタです。 USBプラグアンドプレイのサポートを有効にするためには  ``bPlugAndPlay`` に ``TRUE`` を設定する必要があります。これはオプションであり、アプリケーションによる更なるサポートが必要です。
 
 .. cpp:function:: boolean CUSBHCIDevice::Initialize (boolean bScanDevices = TRUE)
 
-	Initializes the USB host subsystem. Normally this includes a bus scan and the initialization of all attached USB devices, which takes some time. To speed-up the USB initialization, ``bScanDevices`` can be set to ``FALSE``, if USB plug-and-play was enabled in the constructor of this class (``bPlugAndPlay = TRUE``). The device initialization will be deferred to a later call of ``UpdatePlugAndPlay()`` then.
+	USBホストサブシステムを初期化します。通常、これにはバススキャンと接続されているすべてのUSBデバイスの初期化が含まれ、これには時間がかかります。このクラスのコンストラクタでUSBプラグアンドプレイが有効になっている場合 (``bPlugAndPlay = TRUE``)、 ``bScanDevices`` をFALSEに設定することによりUSBの初期化のスピードを上げることができます。デバイスの初期化は後で ``UpdatePlugAndPlay()`` が呼び出されるまで延期されます。
 
 .. cpp:function:: void CUSBHCIDevice::ReScanDevices (void)
 
-	This method can be invoked to re-scan the USB for newly attached devices, in case USB plug-and-play support has not been enabled, when calling the constructor of this class (``bPlugAndPlay = FALSE``).
+	このメソッドを呼び出すことにより、このクラスのコンストラクを呼び出した際にUSBプラグアンドプレイサポートが有効になっていなかった場合 (``bPlugAndPlay = FALSE``)に新しく接続されたデバイスをUSBで再スキャンすることができます。
 
 .. _CUSBHostController:
 
@@ -75,23 +75,23 @@ CUSBHostController
 
 .. cpp:class:: CUSBHostController : public CUSBController
 
-	This is the base class of ``CDWHCIDevice`` and ``CXHCIDevice`` (aka ``CUSBHCIDevice``). The following methods can be called for an instance of these classes too.
+	``CDWHCIDevice`` と ``CXHCIDevice`` （またの名は ``CUSBHCIDevice``）の基底クラスです。以下のメソッドはこれらのクラスのインスタンスでも呼び出すことができます。
 
 .. cpp:function:: boolean CUSBHostController::IsPlugAndPlay (void)
 
-	Returns ``TRUE``, if USB plug-and-play is supported by the USB subsystem.
+	USBサブシステムでUSBプラグアンドプレイがサポートされている場合、 ``TRUE`` を返します。
 
 .. cpp:function:: boolean CUSBHostController::UpdatePlugAndPlay (void)
 
-	If USB plug-and-play is enabled, this method must be called continuously from ``TASK_LEVEL``, so that the internal USB device tree can be updated, if new devices have been attached or devices have been removed from the USB. Returns ``TRUE``, if the USB device tree might have been changed. The application should test for the existence of devices, which it supports, by invoking ``CDeviceNameService::GetDevice()`` then. ``UpdatePlugAndPlay()`` always returns ``TRUE`` on its first call.
+	USBプラグアンドプレイが有効な場合、新しいデバイスが接続されたり、デバイスがUSBから取り外された場合に内部のUSBデバイスツリーを更新できるようにこのメソッドを ``TASK_LEVEL`` から継続して呼び出す必要があります。USBデバイスツリーが変更された可能性がある場合は ``TRUE`` を返します。この場合、アプリケーションは ``CDeviceNameService::GetDevice()`` を呼び出して自らがサポートしているデバイスの存在をテストする必要があります。 ``UpdatePlugAndPlay()`` は最初に呼び出した際は常に ``TRUE`` を返します。
 
 .. cpp:function:: static boolean CUSBHostController::IsActive (void)
 
-	Returns ``TRUE``, if the USB subsystem is available.
+	USBサブシステムが利用可能な場合は ``TRUE`` を返します。
 
 .. cpp:function:: static CUSBHostController *CUSBHostController::Get (void)
 
-	Returns a pointer to the only instance of ``CUSBHostController`` (aka ``CUSBHCIDevice``) in the system.
+	システムにただ一つだけ存在する（シングルトン） ``CUSBHostController`` (またの名は ``CUSBHCIDevice``) のインスタンスへのポインタを返します。
 
 USB gadget support
 ^^^^^^^^^^^^^^^^^^

@@ -1,22 +1,22 @@
 .. _TCP/IP networking:
 
-TCP/IP networking
-~~~~~~~~~~~~~~~~~
+TCP/IPネットワーキング
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section describes the TCP/IP networking support in Circle. This covers initialization and configuration, the socket API, the available upper layer protocol clients and servers and a few utility classes. The TCP/IP networking support requires the scheduler in the system (see :ref:`Multitasking`).
+このセクションではCircleのTCP/IPネットワーキングのサポートについて説明します。初期化と構成、ソケットAPI、利用可能な上位層プロトコルのクライアントとサーバ、ユーティリティクラスが対象です。TCP/IPネットワークサポートにはシステムにスケジューラが必要です（ :ref:`Multitasking` を参照）。
 
-The following sample programs demonstrate TCP/IP networking features:
+以下のサンプルプログラムはTCP/IPネットワークの機能を示しています。
 
 ==============	=========================================
-Sample		Description
+サンプル		説明
 ==============	=========================================
-18-ntptime	Setting the system time from a NTP server
-20-tcpsimple	TCP echo server
-21-webserver	Simple HTTP webserver
-31-webclient	Simple HTTP client (only for reference)
-33-syslog	Send log messages to an UDP syslog server
-35-mqttclient	MQTT client
-38-bootloader	HTTP- and TFTP-based bootloader
+18-ntptime	NTPサーバからシステム時刻を設定する
+20-tcpsimple	TCPエコーサーバ
+21-webserver	シンプルなHTTPサーバ
+31-webclient	シンプルなHTTPクライアント (レファレンス用途のみ)
+33-syslog	UDP syslogサーバにログメッセージを送信する
+35-mqttclient	MQTTクライアント
+38-bootloader	HTTPとTFTPベースのbootloader
 ==============	=========================================
 
 .. note::
@@ -32,7 +32,7 @@ CNetSubSystem
 
 .. cpp:class:: CNetSubSystem
 
-	This class represents the TCP/IP support in Circle. There can be only one instance of this class.
+	このクラスはCircleにおけるTCP/IPサポートを表します。このクラスのインスタンスは1つだけしか存在できません。
 
 .. cpp:function:: CNetSubSystem::CNetSubSystem (const u8 *pIPAddress = 0, const u8 *pNetMask = 0, const u8 *pDefaultGateway = 0, const u8 *pDNSServer = 0, const char *pHostname = "raspberrypi", TNetDeviceType DeviceType = NetDeviceTypeEthernet)
 
