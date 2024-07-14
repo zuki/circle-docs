@@ -1,53 +1,53 @@
-Getting started
+始めよう
 ---------------
 
-To start using Circle, you need to download the project and a toolchain [#tc]_, configure Circle for your target platform, build the Circle libraries and your application [#ap]_, and install the built binary image (the kernel image) [#ki]_ on a SD card, along with a number of firmware files. Furthermore an additional configuration file *config.txt* is needed on the SD card. The following notes require a x86_64 PC running Linux as development host. The file `doc/windows-build.txt <https://github.com/rsta2/circle/blob/master/doc/windows-build.txt>`_ describes, how Windows can be used instead.
+Circleの使用を開始するには、プロジェクトとツールチェーン [#tc]_1 をダウンロードし、ターゲットプラットフォームに合わせてにCircleを構成し、Circleライブラリとアプリケーション2をビルドし [#ap]_、ビルドしたバイナリイメージ（カーネルイメージ） [#ki]_ をファームウェアファイルと共にSDカードにインストールする必要があります。さらに、SDカードには設定ファイル *config.txt*  も必要です。以下の注意事項では開発ホストとしてLinuxが動作するx86_64 PCを必要とします。 `doc/windows-build.txt <https://github.com/rsta2/circle/blob/master/doc/windows-build.txt>`_ ファイルにはLinuxの代わりにWindowsを使用する方法について記載されています。
 
-Download
-~~~~~~~~
+ダウンロード
+~~~~~~~~~~~~~
 
-The Circle project can be downloaded using *Git* as follows:
+Circleは次のように *Git* を使ってダウンロードすることができます:
 
 .. code-block:: shell
 
 	cd /path/to/your/projects
 	git clone https://github.com/rsta2/circle.git
 
-The recommended toolchains for building Circle applications can be downloaded from `here <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>`_. Please note that there are different toolchains for 32-bit (AArch32, normally *arm-none-eabi-*) and for 64-bit (AArch64, normally *aarch64-none-elf-*) targets.
+Circleアプリケーションをビルドするための推奨のツールチェーンは `here <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>`_ からダウンロードすることができます。32ビット（AArch32, 通常は *arm-none-eabi-* ）用と64ビット（AArch64, 通常は *aarch64-none-elf-* ）用のツールチェーンは異なることに注意してください。
 
-Configuration
+構成
 ~~~~~~~~~~~~~
 
 .. important::
 
-	The Raspberry Pi 5 can only run 64-bit kernel images.
+	Raspberry Pi 5 は64ビットカーネルイメージでしか動作しません。
 
-Circle is configured using the file *Config.mk* in the project's root directory. This file can be created using the ``configure`` script, which provides these options:
+Circleはプロジェクトのルートディレクトリにあるファイル *Config.mk* を追加って構成します。このファイルは次のオプションを持つ ``configure`` スクリプトを使って作成することができます:
 
 .. code-block:: none
 
 	-r <number>, --raspberrypi <number>
-	                   Raspberry Pi model number (1, 2, 3, 4, 5, default: 1)
+	                   Raspberry Piモデル番号 (1, 2, 3, 4, 5, デフォルト: 1)
 	-p <string>, --prefix <string>
-	                   Prefix of the toolchain commands
-	                   (default: arm-none-eabi-, aarch64-none-elf- with -r 5)
-	--multicore        Allow multi-core applications
-	--realtime         Enable real time mode to improve IRQ latency
-	--keymap <country> Set default USB keymap (DE, ES, FR, IT, UK, US)
-	--qemu             Build for running under QEMU
+	                   ツールチェーンコマンドのPrefix
+	                   (デフォルト: arm-none-eabi-, -r 5 では aarch64-none-elf-)
+	--multicore        マルチコアアプリケーションを許可する
+	--realtime         IRQレイテンシを改善するためにリアルタイムモードを有効にする
+	--keymap <country> デフォルトのUSBキーマップを設定する (DE, ES, FR, IT, UK, US)
+	--qemu             QEMU配下で実行するようにビルドする
 	-d <option>, --define <option>
-	                   Define additional system option
-	--c++17            Use C++17 standard for compiling (default C++14)
-	-f, --force        Overwrite existing Config.mk file
-	-h, --help         Show usage message
+	                   システムオプションを定義する
+	--c++17            コンパイルに C++17 規格を使用するstandard for compiling (デフォルトは C++14)
+	-f, --force        既存の Config.mk ファイルを上書きする
+	-h, --help         利用法を示す
 
-If you want to configure Circle for a Raspberry Pi 3 with the default toolchain prefix ``arm-none-eabi-``, with the toolchain path in the system ``PATH`` variable, from Circle's project root enter simply:
+CircleをRaspberry Pi 3用にシステムの ``PATH`` 変数にあるツールチェーンパスに存在するデフォルトのツールチェーンPrefix ``arm-none-eabi-`` で構成したい場合、Circleのプロジェクトルートから次のように入力するだけです:
 
 .. code-block:: shell
 
 	./configure -r 3
 
-The file *Config.mk* can also be created by yourself. A typical 32-bit configuration looks like this:
+ファイル *Config.mk* は自分で作成することもできます。通常の32ビット用の構成ファイルは次のようになります:
 
 .. code-block:: make
 
@@ -55,19 +55,19 @@ The file *Config.mk* can also be created by yourself. A typical 32-bit configura
 	AARCH = 32
 	RASPPI = 3
 
-This sets the path and name of your toolchain, and the architecture and model of your Raspberry Pi [#pi]_ computer.
+これはツールチェーンのパスと名前、Raspberry Pi [#pi]_ コンピュータのアーキテクチャとモデルを設定します。
 
 .. note::
 
-	The configurable system options, described in the file `include/circle/sysconfig.h <https://github.com/rsta2/circle/blob/master/include/circle/sysconfig.h>`_, can be defined there or in the *Config.mk* file, like that:
+	`include/circle/sysconfig.h <https://github.com/rsta2/circle/blob/master/include/circle/sysconfig.h>`_ ファイルに記述されている設定可能なシステムオプションは、そこで定義するか、次のように *Config.mk* ファイルで定義することができます:
 
 	``DEFINE += -DOPTION_NAME``
 
-	System options, which are enabled by default, can be disabled with:
+	デフォルトで有効になっているシステムオプションは次のようにして無効にすることができます:
 
 	``DEFINE += -DNO_OPTION_NAME``
 
-A typical 64-bit configuration looks like that:
+通常の64ビット用の構成ファイルは次のようになります:
 
 .. code-block:: make
 
@@ -75,34 +75,34 @@ A typical 64-bit configuration looks like that:
 	AARCH = 64
 	RASPPI = 3
 
-64-bit operation is possible on the Raspberry Pi 3, 4, 5 and Zero 2 only.
+64ビット操作は Raspberry Pi 3, 4, 5 と Zero 2 oでのみ可能です。
 
-Building
+ビルド
 ~~~~~~~~
 
-After configuring Circle, go to the root directory of the Circle project and enter:
+After configuring Circleを構成したら、Circleプロジェクトのルートディレクトリに移動して次のように入力してください:
 
 .. code-block:: shell
 
 	./makeall clean
 	./makeall
 
-By default no sample program is build. If you want to build a sample after ``./makeall`` go to its subdirectory and do ``make``.
+デファルトではサンプルプログラムはビルドされません。サンプルをビルドしたい場合は ``./makeall`` した後にビルドしたいサンプルのサブディレクトリに移動して ``make`` を実行してください。
 
-Installation
+インストール
 ~~~~~~~~~~~~
 
-Copy the Raspberry Pi firmware (from *boot/* subdirectory, do ``make`` there to get them) files along with the *kernel\*.img* (from *sample/* subdirectory) to a SD card with FAT file system.
+Raspberry Pi ファームウェア (*boot/* サブディレクトリから、このディレクトリで ``make`` すると取得できます) ファイルと *kernel*.img* (*sample/* サブディレクトリから) を FAT ファイルシステムの SDカードにコピーしてください。
 
-It is now always recommended to copy the file *config32.txt* (for 32-bit operation, AArch32) or *config64.txt* (for 64-bit operation, AArch64) from the *boot/* subdirectory to the SD card and to rename it to *config.txt* there.
+boot/* サブディレクトリから *config32.txt* (32ビット動作用、AArch32) または *config64.txt* (64ビット動作用、AArch64) ファイルを SD カードにコピーし、*config.txt* にリネームすることを勧めます。
 
-If you want to use the FIQ on a Raspberry Pi 4, you need an additional Circle-specific ARM stub file (*armstub7-rpi4.bin* for 32-bit operation or *armstub8-rpi4.bin* for 64-bit operation), which will be loaded by the firmware. This ARM stub can be built in the *boot/* subdirectory. Please see `boot/README <https://github.com/rsta2/circle/blob/master/boot/README>`_ for information on how to build these files.
+Raspberry Pi 4でFIQを使用する場合は、Circle固有のARMスタブファイル（32ビット動作の場合は *armstub7-rpi4.bin* 、64ビット動作の場合は *armstub8-rpi4.bin* ）を追加する必要があります。このファイルはファームウェアによりロードされます。このARMスタブは *boot/* サブディレクトリでビルドすることができます。これらのファイルのビルド方法については `boot/README <https://github.com/rsta2/circle/blob/master/boot/README>`_ を参照してください。
 
-Put the SD card into your Raspberry Pi and power it on.
+SDカードをRaspberry Piに入れて電源を入れてください。
 
 .. rubric:: Footnotes
 
-.. [#tc] A toolchain in this context is cross compiler with additional tools and libraries, which runs on a specific platform and builds binaries for another (normally different) platform.
-.. [#ap] For a start this can be one of the provided `sample programs <https://github.com/rsta2/circle/blob/master/sample/README>`_.
-.. [#ki] Depending on the Raspberry Pi model and the target architecture (32- or 64-bit) a binary image has the filename *kernel.img*, *kernel7.img*, *kernel7l.img*, *kernel8.img*, *kernel8-rpi4.img* or *kernel_2712.img*.
-.. [#pi] For the Raspberry Pi Zero and Zero W the target ``RASPPI = 1`` has to be configured. The Raspberry Pi Zero 2 W requires the target ``RASPPI = 3``.
+.. [#tc] ここでいうツールチェーンとは、特定のプラットフォーム上で動作し、別の（通常は異なる）プラットフォーム用のバイナリをビルドする、ツールやライブラリを追加したクロスコンパイラのことです。
+.. [#ap] 手始めに提供されている `サンプルプログラム <https://github.com/rsta2/circle/blob/master/sample/README>`_ を使うことができます。
+.. [#ki] Raspberry Piのモデルと対象アーキテクチャ（32ビットか64ビットか）によりバイナリイメージのファイル名は *kernel.img*, *kernel7.img*, *kernel7l.img*, *kernel8.img*, *kernel8-rpi4.img*, *kernel_2712.img* のいずれかとなります。
+.. [#pi] Raspberry Pi Zero と Zero W ではターゲットを ``RASPPI = 1`` と構成する必要があります。Raspberry Pi Zero 2 Wではターゲットを ``RASPPI = 3`` と構成する必要があります。
