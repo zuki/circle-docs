@@ -1,12 +1,12 @@
 Hello world!
 ------------
 
-Now we want to start developing our first Circle program. It may look like this:
+では初めてのCircleプログラムの作成を開始しましょう。これは次のようになります:
 
 .. code-block:: c++
 	:caption: main.cpp
 
-	#include <circle/startup.h>	// for EXIT_HALT
+	#include <circle/startup.h>	// EXIT_HALT のため
 	#include <circle/actled.h>
 	#include <circle/timer.h>
 
@@ -26,9 +26,9 @@ Now we want to start developing our first Circle program. It may look like this:
 		return EXIT_HALT;
 	}
 
-The program should be self-explanatory. ``CTimer::SimpleMsDelay()`` is a static delay function, which can be used, when there is no instance of the class ``CTimer`` in the system.
+プログラムは自明であると思います。 ``CTimer::SimpleMsDelay()`` は静的遅延関数で、システムに ``CTimer`` クラスのインスタンスがない場合に使用できます。
 
-For a first test create a subdirectory in the *app/* directory and save this program as *main.cpp* there. Furthermore you need the following *Makefile* in the same directory:
+最初のテストとして *app/* ディレクトリにサブディレクトリを作成し、そこに *main.cpp* としてこのプログラムを保存してください。さらに、同じディレクトリに以下の *Makefile* を置く必要があります:
 
 .. code-block:: make
 	:caption: Makefile
@@ -43,12 +43,12 @@ For a first test create a subdirectory in the *app/* directory and save this pro
 
 	-include $(DEPS)
 
-Now enter ``make`` in this directory and copy the resulting *kernel\*.img* file to the SD card. When you power on your Raspberry Pi, the green Activity LED should blink ten times. Then the system halts.
+ではこのディレクトリで ``make`` を実行して、作成された *kernel\*.img* ファイルをSDカードにコピーしてください。Raspberry Piの電源を入れると緑色のActivity LEDが10回点滅し、システムが停止するはずです。
 
-The CKernel class
+CKernel クラス
 ~~~~~~~~~~~~~~~~~
 
-Normally an application is not that simple and we should apply some structure to our program, which can be used for any Circle application. In C++ the means of abstraction is a class and we want to define our application's main class now. In Circle it is usually called ``CKernel``. It is a good practice to separate class definitions from its implementation, so we define the class in the header file *kernel.h*:
+通常、アプリケーションはこのような単純なものではなく、プログラムに何らかの構造を適用する必要があります。これはすべてのCircleアプリケーションで使用されるはずです。C++では抽象化の手法はクラスですので、ここでアプリケーション用のメインクラスを定義したいと思います。Circleではこれは通常 ``CKernel`` と呼ばれます。クラスの定義と実装を分けるのは良い習慣なので、クラスはヘッダーファイル *kernel.h* で定義します:
 
 .. code-block:: c++
 	:caption: kernel.h
@@ -84,21 +84,21 @@ Normally an application is not that simple and we should apply some structure to
 
 	#endif
 
-You should create a new subdirectory under *app/* and save this file there. Beside the class constructor ``CKernel()`` and destructor ``~CKernel()`` there are the methods ``Initialize()`` and ``Run()``. This implements a three step initialization for the class members, which is common throughout Circle:
+*app/* 配下に新しいサブディレクトリを作成し、そこにこのファイルを保存してください。クラスのコンストラクタ ``CKernel()`` とデストラクタ ``~CKernel()`` の他にメソッド ``Initialize()`` と ``Run()`` があります。これはクラスのメンバに対して3段階の初期化を行うものであり、Circle全体で共通です。
 
-1. The constructor ``CKernel()`` does some basic initialization for the class member variables.
-2. The method ``Initialize()`` completes the initialization of the class members and returns ``TRUE``, if the initialization was successful.
-3. The method ``Run()`` is entered to start the execution of the application. When it returns, the application halts or the system reboots, depending of the returned value of type ``TShutdownMode``. Many applications never return from ``Run()``.
-
-.. note::
-
-	Circle uses the type ``boolean`` with the possible values ``TRUE`` and ``FALSE`` for historical reasons. You can use ``bool``, ``true`` and ``false`` instead, which is equivalent.
+1. コンストラクタ ``CKernel()`` はクラスメンバ変数の基本的な初期化を行います。
+2. メソッド ``Initialize()`` はクラスメンバの初期化を完了し、初期化に成功した場合は ``TRUE`` を返します。
+3. メソッド ``Run()`` はアプリケーションの実行を開始するために呼び出されます。 ``Run()`` が復帰すると ``TShutdownMode`` 型の戻り値に応じて、アプリケーションが停止するか、システムが再起動されます。多くのアプリケーションは ``Run()`` から復帰することはありません。
 
 .. note::
 
-	Earlier Circle versions required a member of the class ``CMemorySystem`` in ``CKernel``, which initializes and manages the system memory. An instance of ``CMemorySystem`` is created now, before the function ``main()`` is called, so that there is no need to add it to ``CKernel`` any more. For compatibility ``CMemorySystem`` may still be instantiated in ``CKernel``, but this is deprecated.
+	Circleは歴史的な理由により、値として  ``TRUE`` と ``FALSE`` を持つ ``boolean`` 型を使用します。代わりに ``bool``, ``true``, ``false`` を使うこともでき、これらは同じです。
 
-A possible class implementation for ``CKernel``, with the same function as the "Hello world!" program before, looks as follows:
+.. note::
+
+	以前のバージョンの Circle ではシステムメモリを初期化して管理する ``CMemorySystem`` クラスのメンバが ``CKernel`` に必要でした。現在では ``CMemorySystem`` のインスタンスは関数 ``main()`` が呼ばれる前に生成されるため、このメンバを ``CKernel`` に追加する必要はありません。互換性のために ``CKernel`` で ``CMemorySystem`` をインスタンス化することもできますが、これは非推奨です。
+
+先ほどの "Hello world!" プログラムと同じ機能を持つ ``CKernel`` のクラス実装は以下のようになります:
 
 .. code-block:: c++
 	:caption: kernel.cpp
@@ -133,9 +133,9 @@ A possible class implementation for ``CKernel``, with the same function as the "
 		return ShutdownHalt;
 	}
 
-The class constructor ``CKernel()`` and destructor ``~CKernel()`` and the method ``Initialize()`` are not really used here, but this will change in real applications. Please note, that the constructor of the member variable ``m_ActLED`` is implicitly called in ``CKernel()``. This call is automatically generated by the compiler.
+ここではクラスのコンストラクタ ``CKernel()`` とデストラクタ ``~CKernel()`` 、メソッド ``Initialize()`` はあまり使用されていませんが、実際のアプリケーションでは変更されるでしょう。メンバ変数 ``m_ActLED`` のコンストラクタは ``CKernel()`` の中で暗黙的に呼び出されることに注意してください。この呼び出しはコンパイラによって自動的に生成されます。
 
-Now that we have defined and implemented the class ``CKernel``, we still have to provide a ``main()`` function, which implements the three step procedure given above for our class. This can be done as follows:
+これで ``CKernel`` クラスの定義と実装が終わったので、次に ``main()`` 関数を用意します。この関数は上で示した3段階の処理を実装します。これは以下のように行うことができます:
 
 .. code-block:: c++
 	:caption: main.cpp
@@ -167,13 +167,13 @@ Now that we have defined and implemented the class ``CKernel``, we still have to
 		}
 	}
 
-This *main.cpp* file is part of most Circle programs without changes.
+この *main.cpp* ファイルはほとんどのCircleプログラムで変更することなく使うことができます。
 
 .. note::
 
-	Because some destructors used in ``CKernel`` may not be implemented, ``main()`` never really returns, but calls ``halt()`` or ``reboot()`` instead. Because we want to provide a common implementation of *main.cpp* here, we have to accept this little flaw here. In fact with the described ``CKernel`` implementation, it would be possible to return from ``main()``, but this need not be the case in other Circle applications.
+	``CKernel`` で使用されるデストラクタの中には実装されていないものもあるため、 ``main()`` は実際には復帰せず、代わりに ``halt()`` や ``reboot()`` を呼び出します。ここでは *main.cpp* の一般的な実装を提供したいので、この小さな欠点は受け入れなければなりません。実際、説明した ``CKernel`` の実装では ``main()`` から復帰すすることもできますが、他の Circle アプリケーションではそうである必要はありません。
 
-Finally we have to add *kernel.o* to the *Makefile* listed above:
+最後に、上記の *Makefile* に *kernel.o* を追加する必要があります:
 
 .. code-block:: make
 	:caption: Makefile
@@ -188,4 +188,4 @@ Finally we have to add *kernel.o* to the *Makefile* listed above:
 
 	-include $(DEPS)
 
-That's all. Now we have the basic structure of a Circle application and you should be able to build it using ``make``.
+これで終わりです。これでCircleアプリケーションの基本構造ができ ``make`` を使ってビルドできるようになったはずです。
