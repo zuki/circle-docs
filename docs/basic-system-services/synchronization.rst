@@ -1,61 +1,61 @@
 .. _synchronization:
 
-Synchronization
+同期
 ~~~~~~~~~~~~~~~
 
-This section discusses the different system execution levels of code inside a Circle application and how they can be synchronized. Furthermore the class ``CSpinLock`` will be introduced, which is the main synchronization object in multi-core environments, but also in single-core environments, because all Circle code should be prepared to run on multiple cores, at least where it is possible.
+このセクションではCircleアプリケーション内のコードの様々なシステム実行レベルとその同期方法について説明します。さらに、クラス ``CSpinLock`` を紹介します。このクラスはマルチコア環境での主たる同期オブジェクトですが、シングルコア環境でも実行可能です。なぜなら、すべてのCircleコードは少なくとも可能な限りマルチコアで動作するように準備されているはずだからです。
 
-Execution levels
+実行レベル
 ^^^^^^^^^^^^^^^^
 
 .. code-block:: c++
 
 	#include <circle/synchronize.h>
 
-The current execution level is determined by the type of interrupt requests, which are enabled (i.e. allowed to occur) or active (i.e. currently handled) at a given time. Circle defines the following execution levels:
+現在の実行レベルは、ある時点でイネーブル（つまり発生が許可されている）またはアクティブ（つまり現在処理中）になっている割り込み要求のタイプによって決まります。Circleは以下の実行レベルを定義しています。
 
-==============	======================================	==================
-Level [#lv]_	Currently running			Enabled interrupts
-==============	======================================	==================
-TASK_LEVEL	normal application code or task [#mt]_	IRQ, FIQ
-IRQ_LEVEL	IRQ handler or callback [#iq]_		FIQ
-FIQ_LEVEL	FIQ handler
-==============	======================================	==================
+==============  ===============================================  ==================
+レベル [#lv]_   現在実行中                                       有効な割り込み
+==============	===============================================  ==================
+TASK_LEVEL      通常のアプリケーションコードまたはタスク [#mt]_	 IRQ, FIQ
+IRQ_LEVEL       IRQハンドラまたはコールバック [#iq]_             FIQ
+FIQ_LEVEL       FIQハンドラ
+==============  ===============================================  ==================
 
-Interrupt requests of the same type (i.e. IRQ or FIQ) cannot be nested. That means, when for example an IRQ handler is running for one device, a triggered IRQ of another device has to wait for the execution of its IRQ handler, until the previous IRQ handler has been completed.
+同じタイプ（IRQまたはFIQ）の割り込み要求をネストすることはできません。つまり、たとえばあるデバイスに対するIRQ ハンドラが実行されている時、別のデバイスでトリガーされたIRQは、先に実行されたIRQハンドラが完了するまで、その IRQハンドラの実行を待たなければなりません。
 
-The execution level (e.g. ``TASK_LEVEL``) of the currently running code is returned by the following function:
+現在実行中のコードの実行レベル（たとえば ``TASK_LEVEL``）は以下の関数で知ることができます:
 
 .. cpp:function:: unsigned CurrentExecutionLevel (void)
 
-The current execution level can be explicitly raised with this function:
+現在の実行レベルは次の関数を使って明示的に上げる事ができます:
 
 .. cpp:function:: void EnterCritical (unsigned nTargetLevel = IRQ_LEVEL)
 
-``EnterCritical()`` can be called with the same as the current execution level or with a higher level, but not with a lower one. Reducing the current execution level is possible with this function:
+``EnterCritical()`` は現在の実行レベルと同じか、それより高いレベルで呼び出すことができますが、低いレベルで呼び出すことはできません。現在の実行レベルを下げることは次の関数で可能です:
 
 .. cpp:function:: void LeaveCritical (void)
 
-In summary ``EnterCritical()`` is called to enter a critical code region, which must not be interrupted by an IRQ, or by both IRQ and FIQ, depending on the target level. This critical region will be left with ``LeaveCritical()``. Calls to ``EnterCritical()`` can be nested with the same or increasing target level. Every ``EnterCritical()`` has its corresponding ``LeaveCritical()``.
+まとめると、 ``EnterCritical()`` はターゲットレベルによりIRQまたはIRQとFIQの両者による割り込みをうけてはけないクリティカルなコード領域に入るために呼ばれます。このクリティカル領域は ``LeaveCritical()`` により抜けます。 ``EnterCritical()`` の呼び出しは、同じターゲットレベルまたはより高いターゲットレベルでネストすることができます。すべての ``EnterCritical()`` には対応する ``LeaveCritical()`` があります。
 
 .. important::
 
-	In a multi-core environment using ``EnterCritical()`` for synchronization (e.g. protecting data structures in a critical region) is not recommended or does not work at all. You should use spin locks (see below) instead. Furthermore, because Circle source code should be able to run in any environment, where possible, it is good practice to use spin locks also for code, which is developed for a single-core environment. If the system option ``ARM_ALLOW_MULTI_CORE`` is disabled, all spin lock operations mutate to calls of ``EnterCritical()`` and ``LeaveCritical()`` automatically.
+	マルチコア環境では、 ``EnterCritical()`` を同期（クリティカル領域内のデータ構造の保護など）に使用することは推奨されないか、まったく機能しません。代わりにスピンロック（下記参照）を使うべきです。さらに、Circleのソースコードは可能な限りどのような環境でも実行できるようにする必要があるため、シングルコア環境向けに開発されたコードにもスピンロックを使用することはよい習慣です。システムオプション ``ARM_ALLOW_MULTI_CORE`` が無効になっている場合、すべてのスピンロックの操作は自動的に ``EnterCritical()`` と ``LeaveCritical()`` の呼び出しに変わります。
 
 .. rubric:: Footnotes
 
-.. [#lv] These symbols are defined as C macros.
+.. [#lv] これらのシンボルはCのマクロで定義されています。
 
-.. [#mt] Tasks are discussed in the section :ref:`Multitasking`.
+.. [#mt] タスクについては :ref:`Multitasking` セクションで説明されています.
 
-.. [#iq] A number of callback functions in an Circle application (e.g. kernel timer handler) will be called directly from an IRQ handler.
+.. [#iq] Circleアプリケーションの多くのコールバック関数（カーネルタイマーハンドラなど）はIRQハンドラから直接呼び出されます。
 
 .. _CSpinLock:
 
 CSpinLock
 ^^^^^^^^^
 
-The class ``CSpinLock`` implements a spin lock, which is a synchronization object in a multi-core environment. It can be used to protect a data structure, which is shared between multiple cores, from destruction, when multiple cores are trying to access this data structure at the same time. The spin lock serializes the access, so that only one core can write or read the data at a time.
+クラス ``CSpinLock`` はマルチコア環境における同期オブジェクトであるスピンロックを実装しています。複数のコアで共有されているデータ構造に複数のコアから同時にアクセスしようとした場合にデータ構造が破壊されないように保護するために使用することができます。スピンロックはアクセスを直列化し、一度に1つのコアだけがデータを書き込んだり読んだりできるようにします。
 
 .. code-block:: c++
 
@@ -63,28 +63,28 @@ The class ``CSpinLock`` implements a spin lock, which is a synchronization objec
 
 .. cpp:class:: CSpinLock
 
-In Circle a spin lock is initialized with this constructor:
+Circleではスピンロックは次のコンストラクタで初期化されます:
 
 .. cpp:function:: CSpinLock::CSpinLock (unsigned nTargetLevel = IRQ_LEVEL)
 
-	nTargetLevel is the maximum execution level from which the spin lock is acquired and released.
+	nTargetLevel はスピンロックが取得/解放される最大の実行レベルです。
 
 .. cpp:function:: void CSpinLock::Acquire (void)
 
-	This method tries to acquire the spin lock. It also raises the execution level to the level given to the constructor. If the spin lock is currently acquired by another core, the execution will be stalled, until the spin lock is released by the other core.
+	このメソッドはスピンロックの取得を試みます。また、実行レベルをコンストラクタに与えられたレベルに上げます。スピンロックが他のコアにより取得されている場合、スピンロックが他のコアにより解放されるまで実行は停止します。
 
 .. cpp:function:: void CSpinLock::Release (void)
 
-	Releases the spin lock.
+	スピンロックを解放します。
 
 .. important::
 
-	Calls to ``Acquire()`` cannot be nested for the same spin lock. If doing so, the execution will freeze. Multiple spin locks can be acquired in a row, but must be released in the opposite order. Otherwise a system deadlock may occur randomly.
+	同じスピンロックに対して ``Acquire()`` をネストして呼び出すことはできません。これをすると実行がフリーズします。複数のスピンロックを連続して取得することはできますが、逆順に解放しなければなりません。そうしないと、システムのデッドロックがランダムに発生する可能性があります。
 
 CGenericLock
 ^^^^^^^^^^^^
 
-This class is used for mutual exclusion (critical sections) from ``TASK_LEVEL``, at places where it is not clear, if the scheduler (see :ref:`Multitasking`) is in the system and mutual exclusion must work between tasks or between multiple CPU cores otherwise. If the scheduler is available and the system option ``NO_BUSY_WAIT`` is defined, this lock is implemented by the class ``CMutex``, otherwise by the class ``CSpinLock``.
+このクラスは、システムにスケジューラ (:ref:`Multitasking` を参照) があり、タスク間または複数の CPU コア間で相互排他を行う必要がある場合に、それがどこかはよくわからないところで ``TASK_LEVEL`` からの相互排他 (クリティカルセクション) のために使用されます。スケジューラが利用可能で、システムオプション ``NO_BUSY_WAIT`` が定義されている場合、このロックはクラス ``CMutex`` によって実装され、そうでない場合はクラス ``CSpinLock`` によって実装されます。
 
 .. code-block:: c++
 
@@ -94,31 +94,31 @@ This class is used for mutual exclusion (critical sections) from ``TASK_LEVEL``,
 
 .. cpp:function:: void CGenericLock::Acquire (void)
 
-	Acquires the lock. Execution blocks, if another task or CPU core has already acquired the lock.
+	ロックを取得します。他のタスクやCPUコアが既にロックを取得している場合、実行はブロックされます。
 
 .. cpp:function:: void CGenericLock::Release (void)
 
-	Releases the lock. Execution of another task or CPU core, which is waiting for the lock, continues.
+	ロックを解放します。ロックを待っている他のタスクまたはCPUコアの実行が継続されます。
 
 .. _Memory Barriers:
 
-Memory barriers
+メモリバリア
 ^^^^^^^^^^^^^^^
 
-Memory barriers are system control CPU instructions, which influence the access to the main memory. They can be important especially in multi-core applications to ensure, that data has been written to or read from memory at a given place in the code.
+メモリバリアはメインメモリへのアクセスに影響を与えるシステム制御CPU命令です。特にマルチコアアプリケーションでは、コード内の所定の場所でデータがメモリに書き込まれたこと、またはメモリから読み出されたことを保証するために重要な役割を果たします。
 
-When a variable is written by one CPU core in a multi-core environment, this is normally recognized by the other CPU cores, but for synchronization purposes barriers may be required, if a write or read operation must be completed at a specific place in code.
+ある変数がマルチコア環境で1つのCPUコアにより書き込まれると、通常、この書き込みは他のCPUコアによって認識されますが、書き込みまたは読み出し操作がコード内の特定の場所で完了する必要がある場合は、同期目的でバリアが必要になることがあります。
 
 .. code-block:: c
 
 	#include <circle/synchronization.h>
 
-Circle defines the following memory barriers:
+Circleは次のメモリバリアを定義しています:
 
 .. c:macro:: DataSyncBarrier()
 
-	This barrier (also known as `DSB`) ensures, that all memory read and write operations have been completed, at the place where it is inserted in the code. It may be required to insert this barrier, after an application has written data from one CPU core, which will be read from an other CPU core afterwards.
+	このバリア (`DSB` としても知られる) はこれがコードに挿入された場所ですべてのメモリの読み取りと書き込みが完了していることを保証します。アプリケーションがあるCPUコアから書き込んだデータを、その後に別のCPUコアから読み込むような場合にこのバリアを挿入する必要があるかもしれません。
 
 .. c:macro:: DataMemBarrier()
 
-	This barrier (also known as `DMB`) ensures, that all memory read operations have been completed, at the place where it is inserted in the code. It may be required to insert this barrier, before an application will read data, which has been written by an other CPU core before.
+	このバリア (`DMB` としても知られる) はこれがコードに挿入された場所ですべてのメモリ読み取りが完了していることを保証します。アプリケーションが以前に別のCPUコアが書き出したデータを読み込むような場合にこのバリアを挿入する必要があるかもしれません。
