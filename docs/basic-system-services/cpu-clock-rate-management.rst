@@ -1,41 +1,41 @@
-CPU clock rate management
+CPUクロックレート管理
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Most Raspberry Pi models require a CPU clock rate management by the bare metal application to reach the maximum performance. This management continuously measures the current temperature of the CPU (actually the SoC) and regulates the clock rate of the ARM CPU, so that it is decreased, when the temperature is getting too high.
+Raspberry Piのほとんどのモデルでは最大限のパフォーマンスを発揮するためにベアメタルアプリケーションによるCPUクロックレートの管理が必要です。この管理ではCPU（実際にはSoC）の現在の温度を継続的に測定して、温度が高くなりすぎた場合にARM CPUのクロックレートを下げるように調整します。
 
-The absolute maximum of the allowed CPU temperature is 85 degrees Celsius. The firmware automatically ensures, that this limit is not exceeded. If the temperature comes near to this value, the firmware shows a warning icon in the upper right corner of the screen. Please read the `Frequency management and thermal control <https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#frequency-management-and-thermal-control>`_ documentation page to get more information on this.
+許容されるCPU温度の絶対最大値は85℃です。ファームウェアは自動的にこの制限を超えないようにしています。温度がこの値に近づくとファームウェアは画面右上に警告アイコンを表示します。詳しくは `Frequency management and thermal control <https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#frequency-management-and-thermal-control>`_ を参照してください。
 
-The different Raspberry Pi models allow different maximum CPU clock rates and the the frequency of the ARM CPU, which is set after boot, is also different:
+最大CPUクロックレートはRaspberry Piのモデルによって異なり、起動後に設定されるARM CPUの周波数も異なります。
 
-==============	======================	======================	======================
-Raspberry Pi	Maximum CPU clock rate	Boot CPU clock rate	Remarks
-==============	======================	======================	======================
-1		700 MHz			700 MHz			No management required
-2		900 MHz			600 MHz
-Zero		1000 MHz		700 MHz
-Zero 2		1000 MHz		600 MHz
-3 Model B	1200 MHz		600 MHz
-3 Model A+/B+	1400 MHz		600 MHz
-4		1500 MHz		600 MHz			Rev. 1.4: 1800 MHz
-400		1800 MHz		600 MHz			Head sink included
-5		2400 MHz		1500 MHz
-==============	======================	======================	======================
+==============  ======================  =========================  ======================
+Raspberry Pi    最大CPUクロックレート   起動時のCPUクロックレート  コメント
+==============	======================  =========================  ======================
+1               700 MHz                 700 MHz                    管理不要
+2               900 MHz                 600 MHz
+Zero            1000 MHz                700 MHz
+Zero 2          000 MHz                 600 MHz
+3 Model B       1200 MHz                600 MHz
+3 Model A+/B+   1400 MHz                600 MHz
+4               1500 MHz                600 MHz                    Rev. 1.4: 1800 MHz
+400             1800 MHz                600 MHz                    Head sink included
+5               2400 MHz                1500 MHz
+==============	======================  =========================  ======================
 
-Circle uses the class ``CCPUThrottle`` to implement a CPU clock rate management, which is described below. The sample program `26-cpustress` demonstrates its usage.
+Circle は以下で説明するように ``CCPUThrottle`` クラスを使って CPU のクロックレート管理を実装しています。サンプルプログラム `26-cpustress` はその使い方を示しています。
 
 .. important::
 
-	After boot the CPU clock rate of the ARM CPU is not set to the allowed maximum on most Raspberry Pi models. Without further action, the bare metal application will not operate with maximum performance.
+	ブート後のARM CPUのCPUクロックレートは、ほとんどのRaspberry Piモデルで許容される最大値に設定されていません。このままではベアメタルアプリケーションは最大のパフォーマンスで動作しません。
 
-	If you need the maximum performance at any time in your application and cannot handle, when the CPU is clocked down, you may need a head sink and/or fan installed.
+	アプリケーションが常に最大のパフォーマンスが必要であるが、CPUがクロックダウンしている際に対処できない場合は、ヘッドシンクやファンを取り付ける必要があるかもしれません。
 
-	``CCPUThrottle`` should not be used together with code doing I2C or SPI transfers. Because clock rate changes to the CPU clock may also effect the CORE clock, this could result in changing transfer speeds.
+	``CCPUThrottle`` はI2CやSPIによる転送を行うコードと一緒に使用しないでください。CPU クロックのクロックレートが変化するとCORE クロックにも影響するため、転送速度が変化する可能性があるからです。
 
 .. note::
 
-	To keep the CPU performance at the maximum level, it is possible to use a Case Fan, which is especially available for the official Raspberry Pi 4 case. This fan has a control line, which has to be connected to a GPIO pin. To use such a fan with the class ``CCPUThrottle``, you have to add the option ``gpiofanpin=PIN`` to the file `cmdline.txt <https://github.com/rsta2/circle/blob/master/doc/cmdline.txt>`_, where PIN is the GPIO pin number (SoC number, not header position) to which the control line of the fan is connected. The CPU speed is not throttled, when this option is used.
+	CPUのパフォーマンスを最大レベルに保つためにケースファンを使用することができます。特に公式のRaspberry Pi 4ケースには専用のファンが存在します。このファンには制御ラインがあり、GPIOピンに接続する必要があります。このようなファンを ``CCPUThrottle`` クラスで使用するには :ref:`cmdline` ファイルに ``gpiofanpin=PIN`` オプションを追加する必要があります。ここで、PIN はファンの制御ラインを接続した GPIO ピン番号（ヘッダーの位置ではなく SoC の番号）です。このオプションを使用した場合、CPU速度はスロットルされません。
 
-	The Raspberry Pi 5 has a dedicated PWM fan connector, which can be used with the official Case for Raspberry Pi 5 or with the Active Cooler solution. Both include a cooling fan. When you use one of these solutions, you should specify the option ``gpiofanpin=45`` in the file `cmdline.txt <https://github.com/rsta2/circle/blob/master/doc/cmdline.txt>`_. Like the case fan of the Raspberry Pi 4, the class ``CCPUThrottle`` switches the fan on or off, depending on the current SoC temperature. It does not use PWM yet.
+	Raspberry Pi 5には専用のPWMファンコネクタがあり、Raspberry Pi 5用の公式ケースまたはActive Coolerソリューションと組み合わせて使用することができます。どちらも冷却ファンを搭載しています。これらのソリューションのいずれかを使用する場合は :ref:`cmdline` ファイルに ``gpiofanpin=45`` オプションを指定する必要があります。Raspberry Pi 4のケースファン同様 ``CCPUThrottle`` クラスは現在のSoC温度に応じてファンのオン/オフを切り替えます。PWMはまだ使っていません。
 
 CCPUThrottle
 ^^^^^^^^^^^^

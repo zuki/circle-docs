@@ -1,18 +1,18 @@
-Macros
+マクロ
 ~~~~~~
 
-This appendix lists the C-macros, which are defined globally by the Circle build system and which can be used in applications for conditional compiling:
+この付録では、Circleビルドシステムでグローバルに定義されている、条件付きコンパイルによりアプリケーションで使用できるCマクロのリストを提供します。
 
-==============	==================================================================
-Macro		Description
-==============	==================================================================
-__circle__	Circle version number (e.g. 440400 for Circle 44.4, patch level 0)
-AARCH		ARM architecture (32 or 64)
-RASPPI		Major Raspberry Pi model version (1, 2, 3 or 4)
-STDLIB_SUPPORT	Standard library support level [#sl]_ (0, 1, 2 or 3)
-NDEBUG		Not defined in checked builds (default)
-==============	==================================================================
+==============  ==================================================================
+マクロ          説明
+==============  ==================================================================
+__circle__      Circleのバージョン (例: 440400 は Circle 44.4, patch level 0)
+AARCH           ARMアーキテクチャ (32 または 64)
+RASPPI          Raspberry Piモデルのメジャーバージョン (1, 2, 3, 4のいずれか)
+STDLIB_SUPPORT  標準ライブラリのサポートレベル [#sl]_ (0, 1, 2, 3のいずれか)
+NDEBUG          チェック済みビルドでは定義されない (デフォルト)
+==============  ==================================================================
 
 .. rubric:: Footnotes
 
-.. [#sl] See: `doc/stdlib-support.txt <https://github.com/rsta2/circle/blob/master/doc/stdlib-support.txt>`_
+.. [#sl] 参照: :doc:`../ref/stdlib-support`

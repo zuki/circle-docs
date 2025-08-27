@@ -1,7 +1,7 @@
-Network devices
-~~~~~~~~~~~~~~~
+ネットワークデバイス
+~~~~~~~~~~~~~~~~~~~~
 
-Network devices allow the low-level access to network interfaces, and provide methods for sending and receiving network frames and additional functions to manage the network access. Circle supports the access to IEEE 802.3 Ethernet and to IEEE 802.11 wireless LAN (WLAN) interfaces. All network device classes are derived from the base class :cpp:class:`CNetDevice`, which defines the low-level API for network applications. Please note, that applications normally use the high-level TCP/IP socket interface, which is provided by the class :cpp:class:`CSocket`.
+ネットワークデバイスはネットワークインターフェースへの低レベルアクセスを可能にし、ネットワークフレームを送受信する方法やネットワークアクセスを管理する追加機能を提供します。CircleはIEEE 802.3イーサネットとIEEE 802.11無線LAN（WLAN）インターフェースへのアクセスをサポートしています。すべてのネットワークデバイスクラスはネットワークアプリケーション用の低レベルAPIを定義している基本クラス :cpp:class:`CNetDevice` から派生したものです。通常、アプリケーションは :cpp:class:`CSocket` クラスが提供する高レベルの TCP/IP ソケットインターフェースを使用することに注意してください。
 
 CNetDevice
 ^^^^^^^^^^
@@ -12,15 +12,15 @@ CNetDevice
 
 .. cpp:class:: CNetDevice
 
-	This class is the base class for all network device driver classes and defines the low-level API for specific network applications, which want to directly exchange frames via a network interface. Network devices are not registered in the device name service and can be found using the methods :cpp:func:`CNetDevice::GetNetDevice()`.
+	このクラスはすべてのネットワークデバイスドライバクラスの基本クラスであり、ネットワークインタフェースを介してフレームを直接交換したい特定のネットワークアプリケーションのための低レベル API を定義しています。ネットワークデバイスはデバイス名サービスには登録されず、 :cpp:func:`CNetDevice::GetNetDevice()` メソッドを使用して見つけることができます。
 
 .. c:macro:: FRAME_BUFFER_SIZE
 
-	This macro defines the maximum size of a sent or received frame on a network interface. Network buffers usually have this size in Circle.
+	このマクロはネットワークインターフェース上で送信または受信されるフレームの最大サイズを定義します。Circleでは通常、ネットワークバッファのサイズはこの値です。
 
 .. cpp:function:: virtual TNetDeviceType CNetDevice::GetType (void)
 
-	Returns the type of this network device, which is one of these:
+	このネットワークデバイスのタイプを返します。次のいずれかです。
 
 .. c:type:: TNetDeviceType
 
@@ -29,31 +29,31 @@ CNetDevice
 
 .. cpp:function:: virtual const CMACAddress *CNetDevice::GetMACAddress (void) const
 
-	Returns a pointer to a MAC address object, which holds our own address at this network interface device.
+	このネットワークインターフェースデバイスにおける自身のアドレスを保持しているMACアドレスオブジェクトへのポインタを返します。
 
 .. cpp:function:: virtual boolean CNetDevice::IsSendFrameAdvisable (void)
 
-	Returns ``TRUE``, if it is advisable to call ``SendFrame()``.
+	``SendFrame()``を呼び出すことが望ましい場合は ``TRUE`` を返します。
 
 .. note::
 
-	``SendFrame()`` can be called at any time, but may fail, when the TX queue is full. This method gives a hint, if calling ``SendFrame()`` is advisable.
+	``SendFrame()`` はいつでも呼び出すことができますが、TXキューが満杯の場合は失敗することがあります。このメソッドは ``SendFrame()`` を呼び出すことが望ましいかどうかのヒントを与えます。
 
 .. cpp:function:: virtual boolean CNetDevice::SendFrame (const void *pBuffer, unsigned nLength)
 
-	Sends a valid frame to the network. ``pBuffer`` is a pointer to the frame, which does not contain the frame checking sequence (FCS). ``nLength`` is the frame length in bytes. The frame does not need to be padded by the application.
+	有効なフレームをネットワークに送信します。 ``pBuffer`` はフレームへのポインタであり、フレームチェックシーケンス（FCS）は含みません。 ``nLength`` はバイト単位のフレーム長です。アプリケーションはフレームをパディングする必要はありません。
 
 .. cpp:function:: virtual boolean CNetDevice::ReceiveFrame (void *pBuffer, unsigned *pResultLength)
 
-	Polls for a frame, which has been received via the network interface. ``pBuffer`` is a pointer to a buffer, where the frame will be placed, and must have the size :c:macro:`FRAME_BUFFER_SIZE`. ``pResultLength`` is a pointer to a variable, which receives the valid frame length. Returns ``TRUE``, if a frame is returned in the buffer, ``FALSE``, if nothing has been received.
+	ネットワークインターフェース経由で受信したフレームをポーリングします。 ``pBuffer`` はフレームが置かれるバッファへのポインタであり、 :c:macro:`FRAME_BUFFER_SIZE` のサイズでなければなりません。 ``pResultLength`` は有効なフレーム長を受け取る変数へのポインタです。バッファにフレームが返された場合は ``TRUE`` を返し、何も受信しなかった場合は ``FALSE`` を返します。
 
 .. cpp:function:: virtual boolean CNetDevice::IsLinkUp (void)
 
-	Returns ``TRUE``, if the physical link (PHY) is active.
+	物理リンク (PHY) がアクティブの場合 ``TRUE`` を返します。
 
 .. cpp:function:: virtual TNetDeviceSpeed CNetDevice::GetLinkSpeed (void)
 
-	Returns the speed of the physical link (PHY), if it is active, or ``NetDeviceSpeedUnknown``, if it is not known. The following link speeds are defined:
+	物理リンク (PHY) がアクティブの場合はその速度を返します。わからない場合は ``NetDeviceSpeedUnknown`` を返します。次のリンク速度が定義されています。
 
 .. c:type:: TNetDeviceSpeed
 
@@ -67,23 +67,23 @@ CNetDevice
 
 .. cpp:function:: virtual boolean CNetDevice::UpdatePHY (void)
 
-	Updates the device settings according to physical link (PHY) status. Returns ``FALSE``, if this function is not supported.
+	物理リンク (PHY) の状態に応じてデバイスの設定を更新します。この関数がサポートされていない場合は ``FALSE`` を返します。
 
 .. note::
 
-	This method is called continuously every two seconds by the PHY task of the :ref:`TCP/IP networking` subsystem. If you do not use this subsystem, you have to call this method on your own.
+	このメソッドは :ref:`TCP/IP networking` サブシステムのPHYタスクによって2秒ごとに継続的に呼び出されます。このサブシステムを使わない場合は自身でこのメソッドを呼び出す必要があります。
 
 .. cpp:function:: static const char *CNetDevice::GetSpeedString (TNetDeviceSpeed Speed)
 
-	Returns a description for the link speed value ``Speed``, which normally has been returned from ``GetLinkSpeed()``.
+	通常 ``GetLinkSpeed()`` から返されるリンク速度の値 ``Speed`` の説明を返します。
 
 .. cpp:function:: static CNetDevice *CNetDevice::GetNetDevice (unsigned nDeviceNumber)
 
-	Returns a pointer to the network device object for the zero-based number ``nDeviceNumber`` of a network device, or 0, if the device is not available.
+	ネットワークデバイスのゼロ始まりの番号 ``nDeviceNumber`` に対するネットワークデバイスオブジェクトへのポインタを返します。そのデバイスが利用できない場合は 0 を返します。
 
 .. cpp:function:: static CNetDevice *CNetDevice::GetNetDevice (TNetDeviceType Type)
 
-	Returns a pointer to the first network device object of the type ``Type``, which is either a specific network device type (see :cpp:func:`CNetDevice::GetType()`), or ``NetDeviceTypeAny`` to search for any network device.
+	特定のネットワークデバイスタイプ（ :cpp:func:`CNetDevice::GetType()` を参照）か、任意のネットワークデバイスを検索する場合は ``NetDeviceTypeAny`` であるタイプ ``Type`` の最初のネットワークデバイスオブジェクトへのポインタを返します。
 
 CSMSC951xDevice
 ^^^^^^^^^^^^^^^
@@ -105,7 +105,7 @@ CLAN7800Device
 
 .. cpp:class:: CLAN7800Device : public CUSBFunction, CNetDevice
 
-	This class is a driver for the LAN7800 Gigabit Ethernet network interface device, which is attached to an internal USB hub of the Raspberry Pi 3 Model B+ board. This class is automatically instantiated in the USB device enumeration process, when a device of this type is found. This class does not provide specific methods, its API is defined by the base class :cpp:class:`CNetDevice`.
+	このクラスは、Raspberry Pi 3 Model B+ ボードの内部 USB ハブに接続されている LAN7800 Gigabit Ethernet ネットワークインターフェースデバイス用のドライバです。このクラスはUSBデバイスのエヌメレーション処理中にこのタイプのデバイスが見つかると自動的にインスタンス化されます。このクラスは固有のメソッドは提供しません。そのAPIは基底クラス :cpp:class:`CNetDevice` で定義されています。
 
 CUSBCDCEthernetDevice
 ^^^^^^^^^^^^^^^^^^^^^
@@ -116,7 +116,7 @@ CUSBCDCEthernetDevice
 
 .. cpp:class:: CUSBCDCEthernetDevice : public CUSBFunction, CNetDevice
 
-	This class is a driver for the USB CDC Ethernet network interface device, which is supported by QEMU. This class is automatically instantiated in the USB device enumeration process, when a device of this type is found. This class does not provide specific methods, its API is defined by the base class :cpp:class:`CNetDevice`.
+	このクラスは、QEMU がサポートする USB CDC イーサネットネットワークインターフェイスデバイス用のドライバです。このクラスはUSBデバイスのエヌメレーション処理中にこのタイプのデバイスが見つかると自動的にインスタンス化されます。このクラスは固有のメソッドは提供しません。そのAPIは基底クラス :cpp:class:`CNetDevice` で定義されています。
 
 CBcm54213Device
 ^^^^^^^^^^^^^^^
@@ -149,40 +149,58 @@ CBcm4343Device
 
 .. cpp:class:: CBcm4343Device : public CNetDevice
 
-	This class is a driver for the BCM4343x WLAN interface device of the Raspberry Pi 3, 4, 5 and Zero (2) W. It has to be instantiated manually, and is normally used together with the class :cpp:class:`CNetSubSystem` from the :ref:`TCP/IP networking` subsystem and the class :cpp:class:`CWPASupplicant` from the submodule `hostap <https://github.com/rsta2/hostap/tree/hostap_0_7_0-circle>`_. This class provides the interface, defined in its base class :cpp:class:`CNetDevice`, and additional methods, which are needed to manage the association with a WLAN access point (AP). The following description covers only the methods, which are specific to this class.
+	このクラスはRaspberry Pi 3, 4, 5, Zero (2) WのBCM4343x WLANインタフェース
+	デバイス用のドライバーです。マニュアルでインスタンス化する必要があり、通常は
+	ref:`TCP/IP ネットワーク` サブシステムの :cpp:class:`CNetSubSystem` クラスと
+	サブモジュール `hostap <https://github.com/rsta2/hostap/tree/hostap_0_7_0-circle>`_ 
+	を継承した :cpp:class: `CWPASupplicant`クラスと組み合わせて使用します。
+	このクラスは、基底クラス :cpp:class:`CNetDevice` で定義されているインタフェースを
+	提供し、WLANアクセスポイント (AP) とのアソシエーションを管理するために必要な
+	追加のメソッドを提供します。以下の説明はこのクラスに固有のメソッドだけを扱います。
 
 .. cpp:function:: CBcm4343Device::CBcm4343Device (const char *pFirmwarePath)
 
-	Creates an instance of this class. ``pFirmwarePath`` points to the path, where the firmware files for the WLAN controller are provided (e.g. "SD:/firmware/").
+	このクラスのインスタンスを作成します。 ``pFirmwarePath`` にはWLANコントローラ用の
+	ファームウェアファイルが存在するパス（"SD:/firmware/" など）を指定します。
 
 .. cpp:function:: boolean CBcm4343Device::Initialize (void)
 
-	Initializes the WLAN controller and driver. Returns ``TRUE`` on success.
+	WLANコントローラをドライバをインスタンス化します。成功時には ``TRUE`` を返します。
 
 .. cpp:function:: void CBcm4343Device::RegisterEventHandler (TBcm4343EventHandler *pHandler, void *pContext)
 
-	Registers the event handler ``pHandler``, which is called on some specific WLAN events (e.g. disassociation from AP). ``pContext`` is a user pointer, which is handed over to the event handler. ``pHandler`` can be 0 to unregister the event handler.
+	指定のWLANイベント（APからの切断など）時に呼び出されるイベントハンドラ
+	``pHandler`` を登録します。 ``pContext`` はイベントハンドラに渡されるユーザポインタです。
+	``pHandler`` に0を指定するとイベントハンドラの登録を解除することができます。
 
 .. cpp:function:: boolean CBcm4343Device::Control (const char *pFormat, ...)
 
-	Sends the device specific control command ``pFormat`` with optional parameters to the WLAN device driver. Returns ``TRUE`` on success.
+	デバイス固有のコントロールコマンド ``pFormat`` をオプションのパラメータと共にWLAN
+	デバイスドライバに送信します。成功時には ``TRUE`` を返します。
 
 .. cpp:function:: boolean CBcm4343Device::ReceiveScanResult (void *pBuffer, unsigned *pResultLength)
 
-	Polls for a received scan result message. ``pBuffer`` is a pointer to a buffer, where the message will be placed. The buffer must have the size :c:macro:`FRAME_BUFFER_SIZE`. ``pResultLength`` is a pointer to a variable, which receives the valid message length. Returns ``TRUE``, if a message is returned in the buffer, or ``FALSE`` if nothing has been received.
+	スキャン結果メッセージを受信するためにポーリングします。 ``pBuffer`` はメッセージが
+	格納されるバッファへのポインタです。バッファのサイズは :c:macro:`FRAME_BUFFER_SIZE` 
+	でなければなりません。 ``pResultLength`` は有効なメッセージ長を受け取る変数への
+	ポインタです。バッファにメッセージが返された場合は ``TRUE`` 、何も受信しなかった場合は
+	``FALSE`` を返します。
 
 .. cpp:function:: const CMACAddress *CBcm4343Device::GetBSSID (void)
 
-	Returns the BSSID of the associated AP.
+	接続したAPのBSSIDを返します。
 
 .. cpp:function:: boolean CBcm4343Device::JoinOpenNet (const char *pSSID)
 
-	Joins the open WLAN network with the SSID ``pSSID``. Returns ``TRUE`` on success.
+	SSIDが ``pSSID`` の公開WLANネットワークに参加します。成功時には ``TRUE`` を返します。
 
 .. cpp:function:: boolean CBcm4343Device::CreateOpenNet (const char *pSSID, int nChannel, bool bHidden)
 
-	Creates an open WLAN network (AP mode) with the SSID ``pSSID`` on channel ``nChannel``. The SSID is hidden, if ``bHidden`` is ``TRUE``. Returns ``TRUE`` on success.
+	チャネル ``nChannel`` 上にSSIDが ``pSSID`` の公開WLANネットワーク（APモード）を
+	作成します。 ``bHidden`` が ``TRUE`` の場合、SSIDは非公開になります。成功時には 
+	``TRUE`` を返します。
 
 .. cpp:function:: boolean CBcm4343Device::DestroyOpenNet (void)
 
-	Destroys a created open WLAN network. It can be created afterwards again. Returns ``TRUE`` on success.
+	作成した公開WLANネットワークを廃棄します。このネットワークは後で再度作成することが
+	できます。成功時には ``TRUE`` を返します。

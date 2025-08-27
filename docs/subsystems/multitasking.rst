@@ -1,32 +1,32 @@
 .. _Multitasking:
 
-Multitasking
+マルチタスク
 ~~~~~~~~~~~~
 
-Circle provides an optional cooperative non-preemptive scheduler, which allows to solve programming problems based on the process concept. Because in Circle there is only one flat address space with a one-to-one physical-to-virtual address mapping a process in Circle is similar to a thread. In Circle the name "task" is used instead.
+Circleはオプションで協調型のノンプリエンプティブスケジューラを提供しており、プロセスコンセプトに基づいたプログラミングの問題を解くことができます。Circleでは物理アドレスと仮想アドレスの1対1のマッピングを持つフラットなアドレス空間しかないため、Circleのプロセスはスレッドに似ています。Circleでは代わりに「タスク"」という名前が使用されています。
 
-Because the scheduler is optional, a Circle application can work without it. The scheduler was introduced to implement TCP/IP networking support, which required many threads of execution at the same time to be implemented even on the one-core Raspberry Pi models. Later porting the VCHIQ driver and HDMI sound support, the accelerated graphics support (Raspberry Pi 1-3 and Zero only) and Wireless LAN support had similar requirements. It can be useful to use the scheduler also for modeling complex user problems in Circle.
+スケジューラはオプションなので、Circleアプリケーションはスケジューラ無しでも動作します。スケジューラはTCP/IPネットワーキングのサポートを実装するために導入されました。そこでは、1コアモデルのRaspberry Piでも同時に多くのスレッドを実行する必要があったからです。その後、VCHIQドライバとHDMIサウンドのサポート、アクセラレーテッドグラフィックスのサポート（Raspberry Pi 1-3とZeroのみ）、無線LANのサポートが移植されましたが、同様の要件がありました。Circleで複雑なユーザ問題をモデル化する際にもスケジューラを使うと便利です。
 
-The scheduler library provides the following classes:
+スケジューラライブラリは以下のクラスを提供します。
 
-======================	===================================================
-Class			Function
-======================	===================================================
-CScheduler		Cooperative non-preemptive scheduler
-CTask			Representation of a thread of execution, a task
-CMutex			Mutual exclusion (critical sections) across tasks
-CSemaphore		Implements the well-known semaphore concept
-CSynchronizationEvent	Synchronizes the execution of task(s) with an event
+======================  ===================================================
+クラス                  機能
+======================  ===================================================
+CScheduler              協調型非プリエンプティブスケジューラ
+CTask                   実行スレッドの表現、タスク
+CMutex                  タスク間の相互排除（クリティカルセクション）
+CSemaphore              よく知られたセマフォ概念の実装
+CSynchronizationEvent   イベントを使ってタスクの実行を同期
 ======================	===================================================
 
 .. important::
 
-	In a multi-core environment (see :ref:`Multi-core support`) all tasks and the scheduler run on CPU core 0.
+	マルチコア環境 (:ref:`Multi-core support` を参照) ではすべてのタスクとスケジューラはCPUコア0で実行されます。
 
 CScheduler
 ^^^^^^^^^^
 
-This class implements a cooperative non-preemptive scheduler, which controls which task runs at a time. Because the scheduler is non-preemptive, a running task has to explicitly release the CPU by sleeping, waiting for a synchronization object (mutex, semaphore, synchronization event) or by calling ``CScheduler::Get()->Yield()`` after a short time, so that the other tasks are able to run. This relatively simple scheduler implements the round-robin policy without task priorities (and without much overhead).
+このクラスは協調型のノンプリエンプティブスケジューラを実装しており、ある時点でどのタスクを実行するかを制御します。このスケジューラはノンプリエンプティブなので、他のタスクが実行できるように、実行中のタスクはスリープするか、同期オブジェクト（ミューテックス、セマフォ、同期イベント）を待つか、しばらくしてから ``CScheduler::Get()->Yield()`` を呼び出すことによって明示的に CPU を解放する必要があります。この比較的単純なスケジューラはタスク優先順位のない（そしてそれほどオーバーヘッドのない）ラウンドロビン方式を実装しています。
 
 .. code-block:: cpp
 
@@ -36,19 +36,19 @@ This class implements a cooperative non-preemptive scheduler, which controls whi
 
 .. cpp:function:: static boolean CScheduler::IsActive (void)
 
-	Returns ``TRUE`` if the scheduler is available in the system. The scheduler is optional in Circle.
+	システムでスケジューラが利用可能バア愛、 ``TRUE`` を返します。Circleではスケジューラはオプションです。
 
 .. cpp:function:: static CScheduler *CScheduler::Get (void)
 
-	Returns a pointer to the only scheduler object in the system. It must not be called, if the scheduler is not available.
+	システムでゆういつのスケジューラオブジェクトへのポインタを返します。スケジューラが利用可能でない場合はこのメソッドは呼び出してはいけません。
 
 .. cpp:function:: CTask *CScheduler::GetCurrentTask (void)
 
-	Returns a pointer to the ``CTask`` object of the currently running task.
+	現在実行中のタスクの ``CTask`` オブジェクトへのポインタを返します。
 
 .. cpp:function:: CTask *CScheduler::GetTask (const char *pTaskName)
 
-	Returns a pointer to the ``CTask`` object of the task with the name ``pTaskName`` or 0, if the task was not found.
+	名前が ``pTaskName`` の ``CTask`` オブジェクトへのポインタを返します。その名前のタスクが存在しない場合は 0 を返します。
 
 .. cpp:function:: boolean CScheduler::IsValidTask (CTask *pTask)
 
@@ -101,7 +101,7 @@ This class implements a cooperative non-preemptive scheduler, which controls whi
 CTask
 ^^^^^
 
-Derive this class, define the ``Run()`` method to implement your own task and call ``new`` on it to start it.
+このクラスを継承して ``Run()`` メソッドを定義して独自のタスクを実装し ``new`` を呼び出して起動します。
 
 .. code-block:: cpp
 
@@ -160,7 +160,7 @@ Derive this class, define the ``Run()`` method to implement your own task and ca
 CMutex
 ^^^^^^
 
-Provides a method to provide mutual exclusion (critical sections) across tasks.
+タスク間の相互排除（クリティカルセクション）を提供する方法を提供します。
 
 .. code-block:: cpp
 
@@ -179,7 +179,7 @@ Provides a method to provide mutual exclusion (critical sections) across tasks.
 CSemaphore
 ^^^^^^^^^^
 
-Implements the well-known `semaphore <https://en.wikipedia.org/wiki/Semaphore_(programming)>`_ synchronization concept, which was initially defined by Dijkstra. The class maintains a non-negative counter, which is decremented with the ``Down()`` operation. When this is not possible, because the counter is already zero, the calling task waits, until the counter is incremented again. This is possible with the ``Up()`` operation. Semaphores can be used to control the access to a limited number of resources.
+ダイクストラによりはじめに定義された `セマフォ <https://en.wikipedia.org/wiki/Semaphore_(programming)>`_ というよく知られてる同期概念を実装しています。このクラスは ``Down()`` 操作でデクリメントする非負のカウンタを保持します。カウンタが既に 0 であり、デクリメントできない場合、呼び出し元のタスクはカウンタが再びインクリメントされるまで待ちます。インクリメントは ``Up()`` 操作でできます。セマフォは限られた数のリソースへのアクセスを制御するために使用できます。
 
 .. code-block:: cpp
 
@@ -210,7 +210,7 @@ Implements the well-known `semaphore <https://en.wikipedia.org/wiki/Semaphore_(p
 CSynchronizationEvent
 ^^^^^^^^^^^^^^^^^^^^^
 
-Provides a method to synchronize the execution of tasks with an event. The event can be set or cleared. If a task is waiting for the event, it is blocked, when the event is cleared (unset) and will continue execution, when the event is set again. Multiple tasks can wait for the event at the same time.
+タスクの実行をイベントに同期させる方法を提供しまう。イベントはセットとクリアが可能です。タスクがイベントを待っている場合、タスクはイベントがクリア（アンセット）されるとブロックされ、イベントが再びセットされると実行を継続します。複数のタスクが同時にイベントを待つことができます。
 
 .. code-block:: cpp
 

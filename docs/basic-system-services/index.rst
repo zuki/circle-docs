@@ -1,11 +1,11 @@
 .. _Basic system services:
 
-Basic system services
+基本システムサービス
 ---------------------
 
-This section describes the basic system services, which are provided for applications by the Circle base library `libcircle.a`. Only those classes are discussed here, which are directly used by applications. All Circle classes are listed in `doc/classes.txt <https://github.com/rsta2/circle/blob/master/doc/classes.txt>`_.
+このセクションではCircleベースライブラリ `libcircle.a` がアプリケーションに提供する基本的なシステムサービスについて説明します。ここではアプリケーションにより直接使用されるクラスについてのみ説明します。Circleのすべてのクラスは `doc/classes.txt <https://github.com/rsta2/circle/blob/master/doc/classes.txt>`_ にリストアップされています。
 
-The Circle project does not provide a single centralized C++ header file. Instead the header file(s), which must be included for a specific class, function or macro definition are specified in the related subsection.
+Circleプロジェクトは集中型の単一C++ヘッダーファイルを提供しません。代わりに、特定のクラス、関数またはマクロ定義に含める必要があるヘッダーファイルは関連するサブセクションで指定されます。
 
 .. toctree::
 	:maxdepth: 1

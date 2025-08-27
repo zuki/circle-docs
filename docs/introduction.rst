@@ -1,26 +1,26 @@
-Introduction
+はじめに
 ------------
 
-The `Circle <https://github.com/rsta2/circle>`_ project provides a C++ bare metal environment for the `Raspberry Pi <https://www.raspberrypi.com>`_ single-board computers (SBC). This is a framework for developing applications, which run on the bare hardware, without using an operating system, which is somewhat equivalent to programming a very powerful micro-controller. Frequent areas of application for the bare metal system model are:
+`Circle <https://github.com/rsta2/circle>`_ プロジェクトは `Raspberry Pi <https://www.raspberrypi.com>`_ シングルボードコンピュータ (SBC) 用の C++ ベアメタル環境を提供します。Circleはオペレーティングシステムを使用せずに、ベアハードウェア上で動作するアプリケーションを開発するためのフレームワークです。これは非常に強力なマイクロコントローラをプログラミングするのに相当します。ベアメタルシステムモデルの主な応用分野は以下の通りです。
 
-* High-speed data acquisition (DAQ)
-* Retro computer emulation with accurate timing
-* Low latency, high performance audio processing
+* 高速なデータ収集（DAQ）
+* 正確なタイミングによるレトロコンピュータのエミュレーション
+* 低レイテンシーで高性能なオーディオ処理
 
-Characteristics of bare metal solutions can be:
+ベアメタルソリューションの特徴にはいかが挙げられます。
 
-* Low interrupt latency
-* Full system control [#sc]_
-* Light-weighted software architecture [#sa]_
-* Direct hardware access [#hw]_
-* Quick system start (boot)
-* Can power off the system at any time [#po]_
+* 低い割り込みレイテンシ
+* システムの完全なコントロール [#sc]_
+* 軽量なソフトウェアアーキテクチャ [#sa]_
+* ハードウェアへの直接アクセス [#hw]_
+* 素早いシステムスタート (boot)
+* 任意の時点ですステムのパワーオフが可能 [#po]_
 
-This documentation provides the necessary information for developing bare metal applications using Circle.
+このドキュメントはCircleを使用してベアメタルアプリケーションを開発するために必要な情報を提供します。
 
 .. rubric:: Footnotes
 
-.. [#sc] Secondary CPU cores can be dedicated to a specific task.
-.. [#sa] Common operating systems work with many software layers instead.
-.. [#hw] Do not need to write a device driver to access hardware interfaces.
-.. [#po] While the green Activity LED is off.
+.. [#sc] セカンダリCPUコアを特定のタスク専用にすることができます。
+.. [#sa] 一般的なオペレーティングシステムは多くのソフトウェアレイヤで動作します。
+.. [#hw] ハードウェアインタフェースにアクセスするためにデバイスドライバを書く必要がありません。
+.. [#po] 緑色のアクティビティLEDが消灯している間は可能です。

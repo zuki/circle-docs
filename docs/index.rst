@@ -1,9 +1,9 @@
-Circle - C++ bare metal environment for Raspberry Pi
+Circle - Raspberry Pi用のC++ ベアメタル環境
 ====================================================
 
 .. note::
 
-	The latest information refers to the current development version on the `develop` branch.
+	最新の情報は、`develop` ブランチにある現在の開発バージョンを参照しています。
 
 .. toctree::
 	:maxdepth: 2
@@ -19,6 +19,7 @@ Circle - C++ bare metal environment for Raspberry Pi
 	subsystems/index
 	devices/index
 	appendices/index
+	ref/index
 
 .. note::
 

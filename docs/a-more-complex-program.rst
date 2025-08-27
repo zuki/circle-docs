@@ -1,11 +1,11 @@
 .. _a-more-complex-program:
 
-A more complex program
+より複雑なプログラム
 ----------------------
 
-Now that we know, how the basic structure of a Circle application looks like, we want to add some more often used classes and thus functionality. The following program is based on the *sample/04-timer*. You will need a HDMI display or a serial terminal, connected to your Raspberry Pi, to try it out.
+Circleアプリケーションの基本的な構造がどのようなものかわかったところで、さらによく使われるクラスとその機能を追加したいと思います。以下のプログラムは、*sample/04-timer* に基づいています。試すにはRaspberry Piに接続されたHDMIディスプレイかシリアルターミナルが必要です。
 
-First create a new subdirectory below *app/* and copy the files *main.cpp* and *Makefile* from the previously discussed program. These files remain unchanged. Only our ``CKernel`` class will be modified and extended. The class definition looks now as follows:
+まず *app/* の下に新しいサブディレクトリを作成し、先に説明したプログラムから *main.cpp* と *Makefile* をコピーしてください。これらのファイルは変更しません。 ``CKernel`` クラスだけを変更・拡張します。クラス定義は以下のようになります。
 
 .. code-block:: c++
 	:caption: kernel.h
@@ -59,22 +59,22 @@ First create a new subdirectory below *app/* and copy the files *main.cpp* and *
 
 	#endif
 
-We add the following classes as member objects to ``CKernel``:
+以下のクラスをメンバオブジェクトとして ``CKernel`` に追加しました。
 
-======================	======================================================
-Class			Purpose
-======================	======================================================
-CKernelOptions		Provides command line options from *cmdline.txt*
-CDeviceNameService	Maps device names to a pointer to the device object
-CScreenDevice		Access to the HDMI display (screen)
-CSerialDevice		Access to the serial interface (UART)
-CExceptionHandler	Reports system faults (abort exceptions) for debugging
-CInterruptSystem	Interrupt (IRQ and FIQ) handling
-CTimer			Provides several time services
-CLogger			System logging facility
+======================  ======================================================
+クラス                  目的
+======================  ======================================================
+CKernelOptions          *cmdline.txt* から共通のラインオプションを提供します
+CDeviceNameService      デバイス名をデバイスオブジェクトへのポインタにマップします
+CScreenDevice           HDMIディスプレイ (screen) にアクセスします
+CSerialDevice           シリアルインタフェース (UART) にアクセスします
+CExceptionHandler       デバッグ用にシステムエラー (abort exceptions) を報告します
+CInterruptSystem        割り込み (IRQ と FIQ) を処理します
+CTimer                  タイムサービスを提供します
+CLogger                 システムロギング機能です
 ======================	======================================================
 
-Furthermore a private static ``TimerHandler()`` callback function is added, which is used to show the function of kernel timers, implemented by the ``CTimer`` class. The file *kernel.cpp* has been updated like this:
+さらに、プライベートな静的関数 ``TimerHandler()`` コールバック関数が追加され、 ``CTimer`` クラスで実装されているカーネルタイマーの機能を表示するために使用されます。ファイル *kernel.cpp* は次のようにに更新されました。
 
 .. code-block:: c++
 	:caption: kernel.cpp
@@ -95,13 +95,13 @@ Furthermore a private static ``TimerHandler()`` callback function is added, whic
 	{
 	}
 
-In the constructor of ``CKernel`` the ``CScreenDevice`` member is explicitly initialized using the display width and height from the configuration file *cmdline.txt* on the SD card. The display resolution can be selected in the first line of this file for example like this: ``width=640 height=480``. The ``CTimer`` member uses interrupts (IRQ) to implement a system tick of 100 Hz and hence gets a pointer to the ``CInterruptSystem`` member object.
+``CKernel`` のコンストラクタにおいて ``CScreenDevice`` メンバは SD カード上の設定ファイル *cmdline.txt* に指定されているディスプレイの幅と高さを指定して明示的に初期化されます。ディスプレイの解像度はこのファイルの最初の行でたとえば次のように選択できます: ``width=640 height=480`` 。 ``CTimer`` メンバは100 Hzのシステムティックを実装するために割り込み(IRQ)を使用します。そのため、 ``CInterruptSystem`` メンバオブジェクトへのポインタを取得しています。
 
 .. note::
 
-	All Circle options for *cmdline.txt* are listed in `doc/cmdline.txt <https://github.com/rsta2/circle/blob/master/doc/cmdline.txt>`_. All options must be specified in the first line, separated with a space.
+	*cmdline.txt* 二指定できるすべてのCircleオプションは :ref:`cmdline` にリストされています。すべてのオプションは最初の行にスペースで区切って指定する必要があります。
 
-The system logging facility ``CLogger`` is initialized with the wanted logging level and a pointer to the timer, so that it can log the system time. The logging level can be set in *cmdline.txt* by adding ``loglevel=N``, where N is a number between 0 (panic) and 4 (debug, default). Only the log messages with a severity of smaller or equal then this value will be logged.
+システムロギング機能 ``CLogger`` は希望するロギングレベルとタイマーへのポインタで初期化されます。そのため、システムタイムをログ出力することができます。ロギングレベルは *cmdline.txt* に ``loglevel=N`` を追加することで設定することができます。ここでNは 0（パニック）から4（デバッグ、デフォルト）の間の数字です。この値以下の重大度のログメッセージだけが主力されます。
 
 .. code-block:: c++
 	:caption: kernel.cpp (continued)
@@ -145,11 +145,11 @@ The system logging facility ``CLogger`` is initialized with the wanted logging l
 		return bOK;
 	}
 
-In the ``Initialize()`` method the second step of the class member initialization is done. The call to ``m_Logger.Initialize()`` gets a pointer to the logging device as a parameter, which is ``&m_Screen`` by default. If you add ``logdev=ttyS1`` to *cmdline.txt* you can read the messages on a connected serial terminal. The mapping from device name to device object pointer takes place in ``m_DeviceNameService.GetDevice()``, which returns 0, if the device name is not found.
+``Initialize()``メソッドでは、クラスメンバの初期化の第2ステップが行われます。 ``m_Logger.Initialize()``の呼び出しではパラメータとしてロギングデバイスへのポインタを取ります。そのデフォルトは ``&m_Screen`` です。 *cmdline.txt* に ``logdev=ttyS1`` を追加すると接続されているシリアルターミナルでメッセージを読むことができます。デバイス名からデバイスオブジェクトポインタへのマッピングは ``m_DeviceNameService.GetDevice()`` で行われます。その際、デバイス名が見つからない場合は 0 を返します。
 
 .. important::
 
-	The order of initialization is important. The same applies to the constructor and the order of member objects in the class definition in *kernel.h*.
+	初期化の順序は重要です。同様に、 *kernel.h* のクラス定義におけるコンストラクタとメンバオブジェクトの順序も重要です。
 
 .. code-block:: c++
 	:caption: kernel.cpp (continued)
@@ -177,7 +177,7 @@ In the ``Initialize()`` method the second step of the class member initializatio
 		return ShutdownHalt;
 	}
 
-``m_Logger.Write()`` writes a message of the given severity to the system log. ``FromKernel`` names the source of the message (see definition above). ``m_Timer.StartKernelTimer()`` triggers, that the ``TimerHandler()`` gets called after 15 seconds. ``m_Timer.GetTime()`` returns the current local system time in seconds since 1970-01-01 00:00:00. Because we do not use a real-time clock, the actual time is equal to the uptime of the system. The program generates a log message every second on the screen or serial terminal, if it is selected as logging device.
+``m_Logger.Write()`` は指定された重要度のメッセージをシステムログに書き込みます。 ``FromKernel`` はメッセージのソースを指定します（上の定義を参照）。 ``m_Timer.StartKernelTimer()`` は15秒後に ``TimerHandler()`` が呼び出されるようにトリガします。 ``m_Timer.GetTime()`` は1970-01-01 00:00:00からの現在のローカルシステム時間を秒単位で返します。リアルタイムクロックを使用していないので、実際の時刻はシステムの稼働時間に等しいことになります。このプログラムは、ロギングデバイスとして選択されている画面またはシリアルターミナルに1秒ごとにログメッセージを生成します。
 
 .. code-block:: c++
 	:caption: kernel.cpp (continued)
@@ -190,6 +190,6 @@ In the ``Initialize()`` method the second step of the class member initializatio
 		(*pInvalid) ();
 	}
 
-After 15 seconds the ``TimerHandler()`` is called and generates a "Prefetch abort" exception by jumping to the address 0x500000, because the memory region at this address is marked as "not executable".
+15秒後に ``TimerHandler()`` が呼び出され、0x500000番地にジャンプして "Prefetch abort "例外を発生させます。このアドレス範囲は "実行不可" とマークされているからです。
 
-The Appendix :ref:`analyzing-exceptions` explains using this program, how the information can be analyzed, which is displayed, when an abort exception occurs.
+付録 :ref:`analyzing-exceptions` では、このプログラムを使ってアボート例外が発生したときに表示される情報をどのように解析できるかを説明しています。

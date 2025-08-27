@@ -1,56 +1,56 @@
 .. _libraries:
 
-Libraries
-~~~~~~~~~
+ライブラリ
+~~~~~~~~~~~
 
-This appendix lists the libraries, which are provided by the Circle project.
+この付録ではCircleプロジェクトが提供するライブラリのリストを提供します。
 
-Base libraries
+基本ライブラリ
 ^^^^^^^^^^^^^^
 
-The base libraries will be built using ``./makeall`` from Circle's project root.
+基本ライブラリはCircleのプロジェクトルートで ``./makeall`` を実行するとビルドされます。
 
-==============================	==============================================	=================
-Library lib/...			Description					Depends on lib
-==============================	==============================================	=================
-libcircle.a			Basic system services and drivers
-usb/libusb.a			USB host controller and class drivers		circle, input, fs, (sched)
-usb/gadget/libusbgadget.a	USB gadget drivers				circle, usb
-input/libinput.a		Generic input device services			circle
-fs/libfs.a			Basic file system services (partition manager)	circle
-fs/fat/libfatfs.a		FAT file system driver [#fs]_			circle, fs
-sched/libsched.a		Cooperative multi-tasking support		circle
-net/libnet.a			TCP/IP networking				circle, sched
-sound/libsound.a		Sound drivers					circle, usb, (sched)
-==============================	==============================================	=================
+==============================  ===========================================================  ============================
+ライブラリ lib/...              説明                                                         libに依存
+==============================  ===========================================================  ============================
+libcircle.a                     基本的なシステムサービスとドライバ
+usb/libusb.a                    USBホストコントローラとドライバクラス                        circle, input, fs, (sched)
+usb/gadget/libusbgadget.a       USBガジェットドライバ                                        circle, usb
+input/libinput.a                汎用入力デバイスサービス                                     circle
+fs/libfs.a                      基本的なファイルシステムサービス (パーティションマネージャ)  circle
+fs/fat/libfatfs.a               FATファイルシステムドライバ [#fs]_                           circle, fs
+sched/libsched.a                協調型マルチタスクのサポート                                 circle
+net/libnet.a                    TCP/IPネットワーク                                           circle, sched
+sound/libsound.a                サウンドドライバ                                             circle, usb, (sched)
+==============================  ===========================================================  ============================
 
 .. note::
 
-	The USB and sound libraries depend on the scheduler library only, when the system option ``NO_BUSY_WAIT`` is defined.
+	USBライブラリとサウンドライブラリはシステムオプション ``NO_BUSY_WAIT`` が定義されている場合、スケジューラライブラリだけに依存します。
 
-Add-on libraries
-^^^^^^^^^^^^^^^^
+アドオンライブラリ
+^^^^^^^^^^^^^^^^^^^
 
-Add-on libraries will be built using ``make`` from the target directory. This appendix lists only a subset of the available add-on libraries. All provided add-on modules are listed `here <https://github.com/rsta2/circle/blob/master/addon/README>`_.
+アドオンライブラリは対象ディレクトリで ``make`` を実行するとビルドされます。この付録では利用可能なアドオンライブラリの一部のみをリストアップしています。提供されているすべてのアドオンモジュールは `ここにリストアップされています <https://github.com/rsta2/circle/blob/master/addon/README>`_.
 
-==============================	=========================================
-Library addon/...		Description
-==============================	=========================================
-SDCard/libsdcard.a		EMMC and SDHOST SD card drivers
-fatfs/libfatfs.a		`FatFs file system module`_ [#fs]_
-Properties/libproperties.a	Property file (.ini) support
-linux/liblinuxemu.a		Linux kernel driver and pthread emulation
-vc4/vchiq/libvchiq.a		VCHIQ interface driver
-vc4/sound/libvchiqsound.a	VCHIQ (HDMI) sound driver
-ugui/libugui.a			`uGUI graphics library`_
-lvgl/liblvgl.a			`LVGL graphics library`_
-==============================	=========================================
+==============================  =========================================
+ライブラリ addon/...            説明
+==============================  =========================================
+SDCard/libsdcard.a              EMMC/SDHOST SDカードドライバ
+fatfs/libfatfs.a                `FatFs file system module`_ [#fs]_
+Properties/libproperties.a      プロパティファイル (.ini) のサポート
+linux/liblinuxemu.a             Linuxカーネルドライバとpthreadのエミュレーション
+vc4/vchiq/libvchiq.a            VCHIQインタフェースドライバ
+vc4/sound/libvchiqsound.a       VCHIQ (HDMI) サウンドドライバ
+ugui/libugui.a                  `uGUI graphics library`_
+lvgl/liblvgl.a                  `LVGL graphics library`_
+==============================  =========================================
 
 .. _FatFs file system module: http://elm-chan.org/fsw/ff/00index_e.html
 .. _uGUI graphics library: http://embeddedlightning.com/ugui
 .. _LVGL graphics library: https://lvgl.io
 
-These libraries provide accelerated graphics support for the Raspberry Pi 1-3 and Zero (32-bit only) in *addon/vc4/interface/*:
+以下のライブラリは *addon/vc4/interface/* にある Raspberry Pi 1-3 と Zero (32-bit のみ) 用のアクセラレーテッドグラフィックスサポートを提供します。
 
 * bcm_host/libbcm_host.a
 * khronos/libkhrn_client.a
@@ -59,4 +59,4 @@ These libraries provide accelerated graphics support for the Raspberry Pi 1-3 an
 
 .. rubric:: Footnotes
 
-.. [#fs] The file system support in the base libraries is restricted (no subdirectories, short file names). The FatFs file system module in *addon/fatfs/* provides full function support.
+.. [#fs] 基本ライブラリのファイルシステムサポートは制限されています(サブディレクトリなし、短いファイル名)。 *addon/fatfs/* にあるFatFsファイルシステムモジュールは全機能をサポートします。

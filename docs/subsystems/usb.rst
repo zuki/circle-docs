@@ -5,11 +5,11 @@ USB (Universal Serial Bus) サブシステムはUSB 2.0とUSB 3.0 (Raspberry Pi 
 
 このサブシステムのほとんどの操作は :ref:`Devices` セクションで説明するように、デバイスドライバインターフェースの背後に隠れていてアプリケーションからは見えないようになっています。USBを使用するアプリケーションはシステム起動時のUSBサポートの初期化とオプションですがシステムの実行中に新しく接続されたUSBデバイスの検出（USBプラグアンドプレイ）に対処しなければなりません。このセクションではこれらのトピックに限定して説明します。
 
-Circleの（オプションの）USBプラグアンドプレイサポートに関する一般的な情報については `doc/usb-plug-and-play.txt <https://github.com/rsta2/circle/blob/master/doc/usb-plug-and-play.txt>`_ を参照してください。
+Circleの（オプションの）USBプラグアンドプレイサポートに関する一般的な情報については :ref:`usb-plug-and-play` を参照してください。
 
 .. important::
 
-	Please note that Circle does not support OTG protocols, so the USB controller always works in host or gadget mode and the connected peer must work in the opposite mode.
+	CircleはOTGプロトコルをサポートしていません。そのため、USBコントローラは常にホストまたはガジェットモードで動作し、接続されたピアはその逆のモードで動作する必要があることにご注意ください。
 
 CUSBController
 ^^^^^^^^^^^^^^
@@ -20,20 +20,20 @@ CUSBController
 
 .. cpp:class:: CUSBController
 
-	This class defines the interface to all USB (host or gadget) controllers in Circle. It is provided to allow a unique handling of USB host and gadget controllers in applications, which support both kind of controllers.
+	このクラスは、CircleのすべてのUSB（ホストまたはガジェット）コントローラへのインターフェイスを定義します。これは、USBホスト/ガジェット双方のコントローラをサポートするアプリケーションで両コントローラのユニークな処理を可能にするために提供されます。
 
 .. cpp:function:: virtual boolean CUSBController::Initialize (boolean bScanDevices = TRUE) = 0
 
-	Initializes the USB (host or gadget) controller. The parameter ``bScanDevices`` is currently only supported for USB host controllers. See :cpp:func:`CUSBHCIDevice::Initialize()` for its description. Returns ``TRUE`` on success.
+	USB（ホストまたはガジェット）コントローラを初期化します。パラメータ ``bScanDevices`` は現在のところUSBホストコントローラにしか対応していません。説明については :cpp:func:`CUSBHCIDevice::Initialize()` を参照してください。成功すると ``TRUE`` を返します。
 
 .. cpp:function:: virtual boolean CUSBController::UpdatePlugAndPlay (void) = 0
 
-	Updates the information about connected USB devices. This method must be called continuously from ``TASK_LEVEL``, when USB plug-and-play is enabled. Returns ``TRUE``, if the USB device tree might have been changed. The application should test for the existence of devices, which it supports, by invoking :cpp:func:`CDeviceNameService::GetDevice()` then. ``UpdatePlugAndPlay()`` always returns ``TRUE`` on its first call.
+	接続されている USB デバイスの情報を更新します。このメソッドは、USBプラグアンドプレイが有効になっている場合、 ``TASK_LEVEL`` からて継続的に呼び出す必要があります。USBデバイスツリーが変更された可能性がある場合は ``TRUE`` を返します。この場合、アプリケーションは :cpp:func:`CDeviceNameService::GetDevice()` を呼び出してサポートしているデバイスが存在するかテストする必要があります。 ``UpdatePlugAndPlay()`` は最初の呼び出しでは常に ``TRUE`` を返します。
 
-USB host support
-^^^^^^^^^^^^^^^^
+USBホストサポート
+^^^^^^^^^^^^^^^^^^^
 
-In host mode an USB controller supports the connection of one or more USB devices (aka gadgets, peripherals).
+ホストモードではUSBコントローラは1つ以上のUSBデバイス（ガジェット、ペリフェラル）をサポートします。
 
 CUSBHCIDevice
 """""""""""""
@@ -48,7 +48,7 @@ CUSBHCIDevice
 
 .. note::
 
-	実はCircleには ``CUSBHCIDevice`` というクラスは用意されていません。その代わり、対象となるRaspberry PiモデルのUSBホストコントローラ用として ``CDWHCIDevice`` と ``CXHCIDevice`` （これらは ``CUSBHostController`` を継承）と ``CUSBSubSystem`` （Raspberry Pi 5用）の3つのクラスが存在し、 ``CUSBHCIDevice`` がこれらのクラスの別名としてマクロ定義されているだけです。Raspberry Piの各モデルに対応したアプリケーションを構築するために ``CUSBHCIDevice`` という名前だけを使用するべきです。
+	実はCircleには ``CUSBHCIDevice`` というクラスは用意されていません。その代わり、対象となるRaspberry PiモデルのUSBホストコントローラ用として ``CDWHCIDevice`` と ``CXHCIDevice`` （これらは ``CUSBHostController`` を継承）、および ``CUSBSubSystem`` （Raspberry Pi 5用）の3つのクラスが存在し、 ``CUSBHCIDevice`` はこれらのクラスの別名としてマクロ定義されているだけです。Raspberry Piの各モデルに対応したアプリケーションを構築するために ``CUSBHCIDevice`` という名前だけを使用するべきです。
 
 	``CUSBHCIDevice`` で利用できるメソッドの一部は基底クラスである :ref:`CUSBHostController` で定義されており ``CUSBHostController`` オブジェクトへのポインタを使用して呼び出すこともできます。
 
@@ -93,8 +93,8 @@ CUSBHostController
 
 	システムにただ一つだけ存在する（シングルトン） ``CUSBHostController`` (またの名は ``CUSBHCIDevice``) のインスタンスへのポインタを返します。
 
-USB gadget support
-^^^^^^^^^^^^^^^^^^
+USBガジェットサポート
+^^^^^^^^^^^^^^^^^^^^^^
 
 In gadget (aka device, peripheral) mode an USB controller supports the connection to exactly one USB host.
 

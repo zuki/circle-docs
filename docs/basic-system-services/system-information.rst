@@ -1,12 +1,12 @@
-System information
+システム情報
 ~~~~~~~~~~~~~~~~~~
 
-This section describes the classes ``CMachineInfo`` and ``CKernelOptions``, which provide information about the Raspberry Pi model, on which the application is running, and the runtime options, which can be defined in the file *cmdline.txt* on the SD card.
+このセクションでは ``CMachineInfo`` クラスと ``CKernelOptions`` クラスについて説明します。これらのクラスはアプリケーションが動作している Raspberry Pi のモデルに関する情報と、SD カードの *cmdline.txt* ファイルに定義されているランタイムオプションを提供します。
 
 CMachineInfo
 ^^^^^^^^^^^^
 
-Normally there is exactly one instance of the class ``CMachineInfo`` in the system, which is created by the Circle system initialization code. If another instance is created, it acts as an alias for the first instance.
+通常、 ``CMachineInfo`` クラスのインスタンスはシステムに1つだけ存在し、Circleシステムの初期化コードによって生成されます。インスタンスがもう一つ作成された場合、それは最初のインスタンスのエイリアスとして動作します。
 
 .. code-block:: c++
 
@@ -18,7 +18,7 @@ Normally there is exactly one instance of the class ``CMachineInfo`` in the syst
 
 	Returns a pointer to the first instance of ``CMachineInfo``.
 
-Model information
+モデル情報
 """""""""""""""""
 
 .. cpp:function:: TMachineModel CMachineInfo::GetMachineModel (void) const
@@ -83,7 +83,7 @@ Model information
 
 	Returns the raw `revision code <https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes>`_ of the Raspberry Pi model, the application is running on.
 
-Clocks and peripherals
+クロックとペリフェラル
 """"""""""""""""""""""
 
 .. cpp:function:: unsigned CMachineInfo::GetActLEDInfo (void) const
@@ -116,7 +116,7 @@ Clocks and peripherals
 
 	Returns ``TRUE``, if the left PWM audio channel is PWM1 (not PWM0).
 
-DMA channels
+DMAチャネル
 """"""""""""
 
 .. cpp:function:: unsigned CMachineInfo::AllocateDMAChannel (unsigned nChannel)
@@ -130,7 +130,7 @@ DMA channels
 CKernelOptions
 ^^^^^^^^^^^^^^
 
-The class ``CKernelOptions`` provides the values of runtime options, which can be defined in the file *cmdline.txt* on the SD card. The supported options are listed in `doc/cmdline.txt <https://github.com/rsta2/circle/blob/master/doc/cmdline.txt>`_. There is exactly one or no instance of this class in the system. Only relatively simple programs can work without an instance of ``CKernelOptions``.
+クラス ``CKernelOptions`` はランタイムオプションの値を提供します。この値はSDカードにあるファイル *cmdline.txt* で定義することができます。サポートされているオプションは :ref:`cmdline` にリストされています。このクラスのインスタンスはシステム内に1つしかありません。比較的単純なプログラムだけが ``CKernelOptions`` のインスタンスなしで動作します。
 
 .. code-block:: c++
 

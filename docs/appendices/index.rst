@@ -1,4 +1,4 @@
-Appendices
+付録
 ----------
 
 .. toctree::

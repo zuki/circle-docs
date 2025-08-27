@@ -1,11 +1,11 @@
 .. _Devices:
 
-Devices
--------
+デバイス
+---------
 
-This section describes the interfaces of the different device driver classes in Circle.
+このセクションではCircleのさまざまなデバイスドライバクラスのインターフェースについて説明します。
 
-The Circle project does not provide a single centralized C++ header file. Instead the header file(s), which must be included for a specific class, function or macro definition are specified in the related subsection.
+Circleプロジェクトは集中型の単一C++ヘッダーファイルを提供しません。代わりに、特定のクラス、関数またはマクロ定義に含める必要があるヘッダーファイルは関連するサブセクションで指定されます。
 
 .. toctree::
 	:maxdepth: 1

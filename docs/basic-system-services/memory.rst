@@ -1,29 +1,29 @@
-Memory
+メモリ
 ~~~~~~
 
-Circle enables the Memory Management Unit (MMU) to be able to use the data cache of the CPU to speed up operation, but it does not make use of virtual memory to implement specific system features. The physical-to-virtual address mapping is one-to-one over the whole used memory space. [#ma]_ The memory layout for the different system configurations can be found in `doc/memorymap.txt <https://github.com/rsta2/circle/blob/master/doc/memorymap.txt>`_.
+Circleはメモリ管理ユニット（MMU）を有効にして、動作の高速化のためにCPUのデータキャッシュを利用することができますが、特定のシステム機能を実装するために仮想メモリを利用することはありません。物理アドレスと仮想アドレスのマッピングは使用されるメモリ空間全体で1対1です。 [#ma]_  様々なシステム構成のメモリレイアウトは :ref:`memorymap` で見ることができます。
 
-new and delete
+new と delete
 ^^^^^^^^^^^^^^
 
-Circle supports system heap memory. Memory can be allocated with the normal C++ ``new`` operator and freed with the ``delete`` operator. Allocating and freeing memory blocks is supported from ``TASK_LEVEL`` and ``IRQ_LEVEL``, but not from ``FIQ_LEVEL``. [#el]_ Allocated memory blocks are always aligned to the maximum size of a cache-line in the system. [#al]_
+Circleはシステムヒープメモリをサポートしています。メモリは C++の通常の ``new`` 演算子で確保し、 ``delete`` 演算子で解放することができます。メモリブロックの確保と解放は ``TASK_LEVEL`` と ``IRQ_LEVEL`` でサポートされていますが、 ``FIQ_LEVEL`` でははサポートされていません。 [#el]_ 割り当てられたメモリブロックは常にシステムのキャッシュラインの最大サイズにアライメントされます。 [#al]_
 
 .. note::
 
-	Circle keeps a number of linked lists to manage memory blocks of different sizes. The supported block sizes are defined by the system option ``HEAP_BLOCK_BUCKET_SIZES``. By default the maximum manageable block size is 512 KByte. Larger memory blocks can be allocated, but not re-used after ``delete``.
+	Circleは様々なサイズのメモリブロックを管理するために数多くのリンクリストを保持しています。サポートされるブロックサイズはシステムオプション ``HEAP_BLOCK_BUCKET_SIZES`` で定義されています。デフォルトで管理可能な最大ブロックサイズは 512 KByte です。それ以上のサイズのメモリブロックを確保することもできますが ``delete`` した後に再利用することができません。
 
-The ``new`` operator can have a parameter, which specifies the type of memory to be allocated:
+ ``new`` 演算子には割り当てるメモリのタイプを指定するパラメタを指定できます。
 
-==============	=================================================================
-Parameter	Description
-==============	=================================================================
-HEAP_LOW	memory below 1 GByte
-HEAP_HIGH	memory above 1 GByte (on Raspberry Pi 4 and 5 only)
-HEAP_ANY	memory above 1 GB (if available) or memory below 1 GB (otherwise)
-HEAP_DMA30	30-bit DMA-able memory (alias for HEAP_LOW)
-==============	=================================================================
+==============  =================================================================
+パラメタ        説明
+==============  =================================================================
+HEAP_LOW        1 GByte以下のメモリ
+HEAP_HIGH       1 GByte以上のメモリ (Raspberry Pi 4 と 5 のみ)
+HEAP_ANY        1 GByte以上のメモリ (利用可能な場合)、または、1 GByte以下のメモリ (その他)
+HEAP_DMA30      30ビットのDMA可能なメモリ (HEAP_LOWのエイリアス)
+==============  =================================================================
 
-This is especially important on the Raspberry Pi 4 and 5, which support different SDRAM memory regions. For instance one can specify to allocate a 256 byte memory block above 1 GByte:
+これは異なるSDRAMメモリ領域をサポートするRaspberry Pi 4と5では特に重要です。たとえば、1GByte以上の領域から256バイトのメモリブロックを割り当てるように指定することができます。
 
 .. code-block:: c++
 
@@ -31,7 +31,7 @@ This is especially important on the Raspberry Pi 4 and 5, which support differen
 
 	unsigned char *p = new (HEAP_HIGH) unsigned char[256];
 
-Further information on using memory type parameters is available in `doc/new-operator.txt <https://github.com/rsta2/circle/blob/master/doc/new-operator.txt>`_.
+メモリタイプパラメタの仕様に関するさらなる情報は :ref:`new-operator` にあります。
 
 CMemorySystem
 ^^^^^^^^^^^^^
@@ -42,9 +42,9 @@ CMemorySystem
 
 .. cpp:class:: CMemorySystem
 
-The class ``CMemorySystem`` implements most of the memory management function inside Circle. There is normally exactly one instance of this class in each Circle application, which is created by the Circle system initialization code. Earlier versions of Circle required to explicitly create this instance in ``CKernel``. This is deprecated now, but does not disturb either. If another instance of ``CMemorySystem`` is created, it is an alias for the first created instance.
+クラス ``CMemorySystem`` はCircleのメモリ管理機能のほとんどを実装しています。通常、このクラスのインスタンスは各Circleアプリケーションに1つだけ存在し、Circleシステムの初期化コードで生成されます。以前のバージョンのCircleでは ``CKernel`` でこのインスタンスを明示的に作成する必要がありました。これは現在では非推奨ですがそうしても問題はありません。もう一つ ``CMemorySystem`` のインスタンスが作成された場合、それは最初に作成されたインスタンスのエイリアスになります。
 
-Methods callable from applications are:
+アプリケーションから呼び出せるメソッドは以下の通りです。
 
 .. cpp:function:: size_t CMemorySystem::GetMemSize (void) const
 

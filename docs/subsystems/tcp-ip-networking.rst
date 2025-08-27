@@ -21,7 +21,7 @@ TCP/IPネットワーキング
 
 .. note::
 
-	Circle currently supports the IP multicast support level 1 (send only) according to RFC1112.
+	Circleは現在のところ、RFC1112に基づき、IPマルチキャストサポートレベル1（送信のみ）をサポートしています。
 
 CNetSubSystem
 ^^^^^^^^^^^^^
@@ -36,31 +36,31 @@ CNetSubSystem
 
 .. cpp:function:: CNetSubSystem::CNetSubSystem (const u8 *pIPAddress = 0, const u8 *pNetMask = 0, const u8 *pDefaultGateway = 0, const u8 *pDNSServer = 0, const char *pHostname = "raspberrypi", TNetDeviceType DeviceType = NetDeviceTypeEthernet)
 
-	Creates the ``CNetSubSystem`` instance. The parameters ``pIPAddress``, ``pNetMask``, ``pDefaultGateway`` and ``pDNSServer`` point to 4-byte arrays, which define the network configuration (e.g. IP address {192, 168, 0, 42}). Set all these pointers to 0 to enable the dynamic network configuration using DHCP instead. ``pHostname`` specifies the host name, which is sent to the DHCP server (0 to disable). ``DeviceType`` can be ``NetDeviceTypeEthernet`` (default) or ``NetDeviceTypeWLAN``.
+	``CNetSubSystem`` のインスタンスを生成します。パラメータ ``pIPAddress``, ``pNetMask``, ``pDefaultGateway`` と ``pDNSServer`` は 4 バイトの配列を指し、ネットワーク構成を定義します（例: IP アドレス {192, 168, 0, 42}）。これらのポインタをすべて0に設定するとDHCPを使用した動的なネットワーク設定が有効になります。 ``pHostname`` はDHCPサーバーに送信されるホスト名を指定します(無効にするには0とする)。 ``DeviceType`` には ``NetDeviceTypeEthernet`` (デフォルト) または ``NetDeviceTypeWLAN`` を指定できます。
 
 .. note::
 
-	Setting ``DeviceType`` to ``NetDeviceTypeWLAN`` is not enough to access a WLAN. Instead you have to instantiate and initialize the classes ``CBcm4343Device`` (WLAN hardware driver), ``CNetSubSystem`` and ``CWPASupplicant`` (support task for secure WLAN access) in this order. Please see the subsection :ref:`WLAN support` and the `WLAN sample <https://github.com/rsta2/circle/tree/master/addon/wlan/sample/hello_wlan>`_  for details!
+	WLAN にアクセスするには ``DeviceType`` に ``NetDeviceTypeWLAN`` を設定するだけでは十分でありません。 ``CBcm4343Device`` (WLAN ハードウェアドライバ)、 ``CNetSubSystem``、 ``CWPASupplicant`` (セキュアな WLAN アクセスをサポートするタスク) の各クラスをこの順番でインスタンス化して初期化する必要があります。詳細はサブセクション :ref:`WLAN support` と `WLAN sample <https://github.com/rsta2/circle/tree/master/addon/wlan/sample/hello_wlan>`_ を参照してください。
 
 .. cpp:function:: boolean CNetSubSystem::Initialize (boolean bWaitForActivate = TRUE)
 
-	Initializes the network subsystem. Usually this method returns after the network configuration has been assigned, if DHCP is enabled. This requires that the DHCP server can be reached and takes some time. If you want to speedup network initialization, you can set the parameter ``bWaitForActivate`` to ``FALSE``. Then this method will return immediately after initialization, but you have to test on your own, if the network is available using the method ``IsRunning()``, before accessing the network.
+	ネットワークサブシステムを初期化します。通常、このメソッドは DHCP が有効になっている場合、ネットワークコンフィギュレーションが割り当てられた後に復帰します。これにはDHCPサーバに到達できる必要があり、時間がかかります。ネットワークの初期化を早くしたい場合は、パラメータ ``bWaitForActivate`` に ``FALSE`` を設定します。そうすると、このメソッドは初期化した後、すぐに復帰します。ただし、ネットワークにアクセスする前に、 ``IsRunning()`` メソッドを使ってネットワークが利用可能かどうかを自分でテストする必要があります。
 
 .. cpp:function:: boolean CNetSubSystem::IsRunning (void) const
 
-	Returns ``TRUE``, when is TCP/IP network is available and configured. If DHCP is enabled, this means that an IP address is already bound.
+	TCP/IPネットワークが利用可能で構成されている場合、 ``TRUE`` を返します。DHCPが有効になっている場合、これは既にIPアドレスが割り当てられていることを意味します。
 
 .. cpp:function:: const char *CNetSubSystem::GetHostname (void) const
 
-	Returns the hostname, which has been handed over to the constructor.
+	コンストラクタに渡されたホスト名を返します。
 
 .. cpp:function:: CNetConfig *CNetSubSystem::GetConfig (void)
 
-	Returns a pointer to the network configuration, which is saved in an instance of the class ``CNetConfig``. This is usually used to inform the user about the dynamically assigned configuration. You should not try to manipulate the configuration using this pointer.
+	クラス ``CNetConfig`` のインスタンスとして保存されているネットワーク構成へのポインタを返します。通常、このポインタは動的に割り当てられた構成をユーザに通知するために使用されます。このポインタを使用して構成を操作しようとしてはいけません。
 
 .. cpp:function:: static CNetSubSystem *CNetSubSystem::Get (void)
 
-	Returns a pointer to the instance of ``CNetSubSystem``.
+	``CNetSubSystem`` のインスタンスへのポインタを返します.
 
 CNetConfig
 ^^^^^^^^^^
@@ -71,31 +71,31 @@ CNetConfig
 
 .. cpp:class:: CNetConfig
 
-	An instance of this class holds the configuration of the TCP/IP networking subsystem. A pointer to this instance can be requested using ``CNetSubSystem::GetConfig()``. The following methods can be used to get the different configuration items.
+	このクラスのインスタンスは TCP/IP ネットワーキングサブシステムの構成を保持します。このインスタンスへのポインタは ``CNetSubSystem::GetConfig()`` を使用して要求することができます。以下のメソッドを使用してさまざまな構成項目を取得することができます。
 
 .. cpp:function:: boolean CNetConfig::IsDHCPUsed (void) const
 
-	Returns ``TRUE`` if the network is configured dynamically using DHCP.
+	ネットワークがDHCPを使って動的に構成されている場合、 ``TRUE`` を返します。
 
 .. cpp:function:: const CIPAddress *CNetConfig::GetIPAddress (void) const
 
-	Returns our own IP address.
+	自身のIPアドレスを返します。
 
 .. cpp:function:: const u8 *CNetConfig::GetNetMask (void) const
 
-	Returns the net mask of the local network, we are connected to.
+	接続しているローカルネットワークのネットマスクを返します。
 
 .. cpp:function:: const CIPAddress *CNetConfig::GetDefaultGateway (void) const
 
-	Returns the IP address of the default gateway into the Internet.
+	インターネットへのデフォルトゲートウェイのIPアドレスを返します。
 
 .. cpp:function:: const CIPAddress *CNetConfig::GetDNSServer (void) const
 
-	Returns the IP address of the Domain Name Service server.
+	DNSさーばのIPアドレスを返します。
 
 .. cpp:function:: const CIPAddress *CNetConfig::GetBroadcastAddress (void) const
 
-	Returns the (directed) broadcast address, which is valid in the local network, we are connected to.
+	接続しているローカルネットワークで有効な（指定の）ブロードキャストアドレスを返します。
 
 CSocket
 ^^^^^^^
@@ -103,66 +103,66 @@ CSocket
 .. code-block:: cpp
 
 	#include <circle/net/socket.h>
-	#include <circle/net/in.h>		// for IPPROTO_*, MSG_DONTWAIT
-	#include <circle/netdevice.h>		// for FRAME_BUFFER_SIZE
+	#include <circle/net/in.h>		// IPPROTO_*, MSG_DONTWAIT 用
+	#include <circle/netdevice.h>		// FRAME_BUFFER_SIZE 用
 
 .. cpp:class:: CSocket : public CNetSocket
 
-	This class forms the API for TCP/IP network access in Circle.
+	このクラスはCircleにおけるTCP/IPネットワークアクセスのためのAPIを形成します。
 
 .. note::
 
-	Port numbers at the Circle socket API are in host byte order. This means you do not need to swap the byte order to network order, when you specify a little endian number to an API function.
+	CircleにおけるソケットAPIのポート番号はホストのバイトオーダーです。これは、API関数にリトルエンディアンの番号を指定する際に、バイトオーダをネットワークオーダに入れ替える必要はないことを意味します。
 
-	Operations can be blocking or non-blocking. Blocking operations wait for the completion, before the function returns. Non-blocking operations return immediately, which means that you have to ensure on your own, that the system is not congested, e.g. if sending much data.
+	操作にはブロッキングとノンブロッキングがあります。ブロッキング操作では関数の完了を待って復帰します。のンプロッキング操作は直ちに復帰します。これは、大量のデータを送信する場合などでシステムが混雑していないことを自分で確認する必要があることを意味します。
 
 .. cpp:function:: CSocket::CSocket (CNetSubSystem *pNetSubSystem, int nProtocol)
 
-	Creates a ``CSocket`` object, which represents one TCP/IP connection in Circle. ``pNetSubSystem`` is a pointer to the network subsystem. ``nProtocol`` can be ``IPPROTO_TCP``  or ``IPPROTO_UDP``.
+	Circleにおいて1つのTCP/IPコネクションを表す ``CSocket`` オブジェクトを作成します。 ``pNetSubSystem`` はネットワークサブシステムへのポインタ、 ``nProtocol`` は ``IPPROTO_TCP``  か ``IPPROTO_UDP`` のいずれかです。
 
 .. cpp:function:: CSocket::~CSocket (void)
 
-	Destroys a ``CSocket`` object and terminates an active connection.
+	``CSocket`` オブジェクトを破棄してアクティブなコネクションを終了させます。
 
 .. cpp:function:: int CSocket::Bind (u16 usOwnPort)
 
-	Binds the port number ``usOwnPort`` to this socket. Returns 0 on success or < 0 on error.
+	ポート番号 ``usOwnPort`` をこのソケットにバインドします。成功した場合は 0、エラーの場合は < 0 を返します。
 
 .. cpp:function:: int CSocket::Connect (const CIPAddress &rForeignIP, u16 usForeignPort)
 
-	Connects to a foreign host/port (TCP) or setup a foreign host/port address (UDP). ``rForeignIP`` is the IP address of the host to be connected. ``usForeignPort`` is the number of the port to be connected. Returns 0 on success or < 0 on error.
+	外部のホスト/ポートに接続する (TCP) 、または、外部のホスト/ポートアドレスを設定します (UDP)。 ``rForeignIP`` は接続するホストのIPアドレスです。 ``usForeignPort`` は接続するポート番号です。成功した場合は 0、エラーの場合は < 0 を返します。
 
 .. cpp:function:: int CSocket::Listen (unsigned nBackLog = 4)
 
-	Listens for incoming connections (TCP only). You must call ``Bind()`` before. ``nBackLog`` is the maximum number of simultaneous connections, which may be accepted in a row before ``Accept()`` is called (up to 32). Returns 0 on success or < 0 on error.
+	着信コネクションをリッスンします (TCPのみ). これより先に ``Bind()`` を呼び出す必要があります。 ``nBackLog`` は ``Accept()`` により連続して受け付けることができる同時接続の最大数です（最大32）。成功した場合は 0、エラーの場合は < 0 を返します。
 
 .. cpp:function:: CSocket *CSocket::Accept (CIPAddress *pForeignIP, u16 *pForeignPort)
 
-	Accepts an incoming connection (TCP only). You must call ``Listen()`` before. ``pForeignIP`` points to a ``CIPAddress`` object, which receives the IP address of the remote host. The remote port number will be returned in ``*pForeignPort``. Returns a newly created socket to be used to communicate with the remote host, or 0 on error.
+	着信コネクションを受け付けます (TCPのみ). これより先に ``Listen()`` を呼び出す必要があります。 ``pForeignIP`` はリモートホストのIPアドレスを受信する ``CIPAddress`` オブジェクトへのポインタです。リモートポート番号は ``*pForeignPort`` で返されます。リモートホストと通信する際に使用する新規作成されたソケットを返します。エラーの場合は 0 を返します。
 
 .. cpp:function:: int CSocket::Send (const void *pBuffer, unsigned nLength, int nFlags)
 
-	Sends a message to a remote host. ``pBuffer`` is a pointer to the message and ``nLength`` is its length in bytes. ``nFlags`` can be ``MSG_DONTWAIT`` (non-blocking operation) or 0 (blocking operation). Returns the length of the sent message or < 0 on error.
+	リモートホストにメッセージを送信します。 ``pBuffer`` はメッセージへのポインタであり、 ``nLength`` はそのバイト長であす。 ``nFlags`` には ``MSG_DONTWAIT`` (ノンブロッキング操作) または 0 (ブロッキング操作) を指定することができます。送信したメッセージの長さを返します、エラーの場合は < 0 を返します。
 
 .. cpp:function:: int CSocket::Receive (void *pBuffer, unsigned nLength, int nFlags)
 
-	Receives a message from a remote host. ``pBuffer`` is a pointer to the message buffer and ``nLength`` is its size in bytes. ``nLength`` should be at least ``FRAME_BUFFER_SIZE``, otherwise data may get lost. ``nFlags`` can be ``MSG_DONTWAIT`` (non-blocking operation) or 0 (blocking operation). Returns the length of received message, which is 0 with ``MSG_DONTWAIT`` if no message is available, or < 0 on error.
+	リモートホストからメッセージを受信します。 ``pBuffer`` はメッセージバッファへのポインタで、 ``nLength`` はそのバイト長です。 ``nLength`` は少なくとも ``FRAME_BUFFER_SIZE`` である必要があります。そうでないとデータが消失する可能性があります。 ``nFlags`` には ``MSG_DONTWAIT`` (ノンブロッキング操作) または 0 (ブロッキング操作) を指定することができます。受信したしたメッセージの長さを返します。 ``MSG_DONTWAIT`` を指定しており、利用可能なメッセージがない場合は 0 を返します。エラーの場合は < 0 を返します。
 
 .. cpp:function:: int CSocket::SendTo (const void *pBuffer, unsigned nLength, int nFlags, const CIPAddress &rForeignIP, u16 nForeignPort)
 
-	Sends a message to a specific remote host. ``pBuffer`` is a pointer to the message and ``nLength`` is its length in bytes. ``nFlags`` can be ``MSG_DONTWAIT`` (non-blocking operation) or 0 (blocking operation). ``rForeignIP`` is the IP address of the host to be sent to (ignored on TCP socket). ``nForeignPort`` is the number of the port to be sent to (ignored on TCP socket). Returns the length of the sent message or < 0 on error.
+	指定したリモートホストにメッセージを送信します。 ``pBuffer`` はメッセージへのポインタ、 ``nLength`` はそのバイト長です。 ``nFlags`` には ``MSG_DONTWAIT`` (ノンブロッキング操作) または 0 (ブロッキング操作) を指定することができます。 ``rForeignIP`` は送信先のホストの IP アドレスです (TCP ソケットでは無視されます)。 ``nForeignPort`` は送信先のポート番号です (TCP ソケットでは無視されます)。送信したメッセージの長さを返します。エラーの場合は < 0 を返します。
 
 .. cpp:function:: int CSocket::ReceiveFrom (void *pBuffer, unsigned nLength, int nFlags, CIPAddress *pForeignIP, u16 *pForeignPort)
 
-	Receives a message from a remote host, returns host/port of remote host. ``pBuffer`` is a pointer to the message buffer and ``nLength`` is its size in bytes. ``nLength`` should be at least ``FRAME_BUFFER_SIZE``, otherwise data may get lost. ``nFlags`` can be ``MSG_DONTWAIT`` (non-blocking operation) or 0 (blocking operation). ``pForeignIP`` is a pointer to a ``CIPAddress`` object, which receives the IP address of the host, which has sent the message. The number of the port from which the message has been sent will be returned in ``*pForeignPort``. Returns the length of the received message, which is 0 with ``MSG_DONTWAIT`` if no message is available, or < 0 on error.
+	リモートホストからメッセージを受信し、リモートホストのホスト/ポートを返します。 ``pBuffer`` はメッセージバッファへのポインタ、 ``nLength`` はそのバイト長です。 ``nLength`` は少なくとも ``FRAME_BUFFER_SIZE`` である必要があります。そうでないとデータが消失する可能性があります。 ``nFlags`` には ``MSG_DONTWAIT`` (ノンブロッキング操作) または 0 (ブロッキング操作) を指定することができます。 ``pForeignIP`` は ``CIPAddress`` オブジェクトへのポインタで、メッセージを送信したホストのIPアドレスが設定されます。メッセージが送信されたポート番号は ``*pForeignPort`` に設定されます。受信したメッセージの長さを返します。 ``MSG_DONTWAIT`` を指定しており、利用可能なメッセージがない場合は 0 を返します。エラーの場合は < 0 を返します。
 
 .. cpp:function:: int CSocket::SetOptionBroadcast (boolean bAllowed)
 
-	``bAllowed`` specifies weather sending and receiving broadcast messages is allowed on this socket (default ``FALSE``). Call this with ``bAllowed = TRUE`` after ``Bind()`` or ``Connect()`` to be able to send and/or receive broadcast messages (ignored on TCP socket). Returns 0 on success or < 0 on error.
+	``bAllowed`` はこのソケットでブロードキャストメッセージの送受信を許可するか否を指定します (デフォルトは ``FALSE``)。 ``Bind()`` または ``Connect()`` の後に ``bAllowed = TRUE`` を指定してこのメソッドを呼び出すと、ブロードキャストメッセージを送受信できるようになります (TCP ソケットでは無視されます)。成功した場合は 0、エラーの場合は < 0 を返します。
 
 .. cpp:function:: const u8 *CSocket::GetForeignIP (void) const
 
-	Returns a pointer to the IP address of the connected remote host (4 bytes) or 0, if the socket is not connected.
+	接続したリモートホストのIPアドレス（4バイト）へのポインタを返します。ソケットが接続されていない場合は 0 を返します。
 
 Clients
 ^^^^^^^
@@ -639,20 +639,20 @@ CMACAddress
 
 .. _WLAN support:
 
-WLAN support
+WLANサポート
 ^^^^^^^^^^^^
 
-The WLAN support in Circle is based on three elements:
+CircleにおけるWLANのサポートは次の3つの要素に基づいています:
 
-1. Driver class :cpp:class:`CBcm4343Device` for the WLAN hardware
-2. :ref:`TCP/IP networking` subsystem, which is instantiated with the class :cpp:class:`CNetSubSystem`
-3. *WPA Supplicant* library, which is built from the submodule `hostap <https://github.com/rsta2/hostap/tree/hostap_0_7_0-circle>`_, and is instantiated via the wrapper class :cpp:class:`CWPASupplicant`
+1. WLANハードウェア用のドライバクラス :cpp:class:`CBcm4343Device`
+2. :ref:`TCP/IP networking` サブシステム, クラス :cpp:class:`CNetSubSystem` からインスタンス課されます
+3. *WPA Supplicant* ライブラリ, サブモジュール `hostap <https://github.com/rsta2/hostap/tree/hostap_0_7_0-circle>`_ でビルドされており、ラッパークラス  :cpp:class:`CWPASupplicant` を通じてインスタンス化されます
 
-To enable WLAN support in Circle, these elements have to be created and initialized in this order. This is demonstrated in the `WLAN sample <https://github.com/rsta2/circle/tree/master/addon/wlan/sample/hello_wlan>`_. The third element is only required to use secure WLAN networks.
+CircleでWLANサポートを有効にするにはこれらの要素をこの順で作成し、初期化する必要があります。これは `WLAN sample <https://github.com/rsta2/circle/tree/master/addon/wlan/sample/hello_wlan>`_ で示されています。3番目の要素はセキュアなWLANネットワークを使用する場合にのみ必要です。
 
 .. note::
 
-	The TCP/IP networking subsystem must be configured to use the WLAN device (``NetDeviceTypeWLAN``) and must be initialized, without waiting for an IP address from the DHCP server (with the parameter ``FALSE``). Because the DHCP protocol requires *WPA Supplicant* to work, :cpp:func:`CNetSubSystem::Initialize()` would never return otherwise.
+	TCP/IPネットワーキングサブシステムがWLANデバイスを使用するように構成されており (``NetDeviceTypeWLAN``) 、DHCPサーバからのIPアドレスを待たないように初期化されている (パラメータ ``FALSE``) 必要があります。DHCP プロトコルが動作するためには *WPA Supplicant* が必要だからです。そうでないと :cpp:func:`CNetSubSystem::Initialize()` は決して復帰しません。
 
 CWPASupplicant
 """"""""""""""
@@ -663,16 +663,16 @@ CWPASupplicant
 
 .. cpp:class:: CWPASupplicant
 
-	This class is a wrapper for the well-known *WPA Supplicant* application, which has been ported to Circle as a library. An instance of this class is required for connecting to secure (i.e. WPA2) WLAN networks. The WLAN hardware driver :cpp:class:`CBcm4343Device` and the :ref:`TCP/IP networking` subsystem must already running, when *WPA Supplicant* is initialized.
+	このクラスはライブラリとしてCircleに移植されている有名な *WPA Supplicant* アプリケーションのラッパーです。セキュアな（つまりWPA2）WLANネットワークに接続するためにはこのクラスのインスタンスが必要です。 *WPA Supplicant* が初期化される前にすでにWLAN ハードウェアドライバ :cpp:class:`CBcm4343Device` と :ref:`TCP/IP networking` サブシステムが動作している必要があります。
 
 .. cpp:function:: CWPASupplicant::CWPASupplicant (const char *pConfigFile)
 
-	Creates an instance of this class. ``pConfigFile`` is the path to the configuration file (e.g. "SD:/wpa_supplicant.conf").
+	このクラスのインスタンスを作成します。 ``pConfigFile`` は構成ファイルのパス (たとえば、"SD:/wpa_supplicant.conf") です。.
 
 .. cpp:function:: boolean CWPASupplicant::Initialize (void)
 
-	Initializes the *WPA Supplicant* module and automatically starts to connect to one of the WLAN networks, which have been configured in the configuration file.
+	Initializes the *WPA Supplicant* モジュールを初期化して、構成ファイルで設定されているWLANネットワークへの接続を自動的に開始します。
 
 .. cpp:function:: boolean CWPASupplicant::IsConnected (void) const
 
-	Returns ``TRUE``, if a connection to a configured WLAN network is currently active.
+	設定したWLANネットワークへの接続が現在アクティブの場合、 ``TRUE`` を返します。

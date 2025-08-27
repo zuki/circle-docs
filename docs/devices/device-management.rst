@@ -1,14 +1,14 @@
-Device management
+デバイス管理
 ~~~~~~~~~~~~~~~~~
 
-In Circle most devices are represented by two things:
+サークルではほとんどのデバイスは以下の2つで表現されます。
 
-* By a device specific object, an instance of a class, which is derived from the class ``CDevice``.
-* By a device name, a C-string, which allows to retrieve a pointer to the device object, using the Circle device name service, which is implemented by the class ``CDeviceNameService``.
+* デバイス固有のオブジェクトによる。これは ``CDevice`` クラスから派生したクラスのインスタンスです。
+* c文字列のデバイス名による。これは ``CDeviceNameService`` クラスにより実装されているCircleデバイス名サービスを使ってデバイスオブジェクトへのポインタを取得することができるようにされています。
 
 .. note::
 
-	The I/O system of Circle is not as uniform as that of Linux, for example. Some device classes have specific interfaces, different from the well-known ``Read()`` and ``Write()`` interface and are not derived from ``CDevice``.
+	CircleのI/OシステムはたとえばLinuxのI/Oシステムほどには統一されていません。デバイスクラスの中には よく知られている ``Read()`` や ``Write()`` インターフェースとは異なる特定のインターフェースを持ち、 ``CDevice`` から派生したものではないものがあります。
 
 CDevice
 ^^^^^^^
@@ -19,35 +19,35 @@ CDevice
 
 .. cpp:class:: CDevice
 
-	This class is the base class for most device classes in Circle.
+	このクラスはCircleのほとんどのデバイスクラスの基底クラスです。
 
 .. cpp:function:: virtual int CDevice::Read (void *pBuffer, size_t nCount)
 
-	Performs a read operation of up to ``nCount`` bytes from a device to ``pBuffer``. Returns the number of read bytes or < 0 on failure.
+	デバイスから ``pBuffer`` に最大 ``nCount`` バイトの読み込み操作を行います。読み込んだバイト数を返します。失敗した場合は < 0 を返します。
 
 .. cpp:function:: virtual int CDevice::Write (const void *pBuffer, size_t nCount)
 
-	Performs a write operation of up to ``nCount`` bytes to a device from ``pBuffer``. Returns the number of written bytes or < 0 on failure.
+	デバイスに ``pBuffer`` から最大 ``nCount`` バイトの書き込み操作を行います。書き込んだバイト数を返します。失敗した場合は < 0 を返します。
 
 .. cpp:function:: virtual u64 CDevice::Seek (u64 ullOffset)
 
-	Sets the position of the read/write pointer of a device to the byte offset ``ullOffset``. Returns the resulting offset, or ``(u64) -1`` on failure. This method is only implemented for block devices, character devices always return failure.
+	デバイスの読み書きポインタの位置をバイトオフセット ``ullOffset`` に設定します。設定されたオフセットを返します。失敗した場合は ``(u64) -1`` を返します。このメソッドはブロックデバイスに対してのみ実装されており、キャラクタデバイスは常に失敗を返します。
 
 .. cpp:function:: virtual u64 CDevice::GetSize (void) const
 
-	Returns the total byte size of a block device, or ``(u64) -1`` on failure. This method is only implemented for block devices, character devices always return failure.
+	ブロックデバイスの合計バイトサイズを返します。失敗した場合は ``(u64) -1`` を返します。このメソッドはブロックデバイスに対してのみ実装されており、キャラクタデバイスは常に失敗を返します。
 
 .. cpp:function:: virtual int CDevice::IOCtl (unsigned long ulCmd, void *pData)
 
-	Invokes the I/O control command ``ulCmd`` of the device with the command specific data ``pData``. ``pData`` can be used to return command specific data too. Returns zero on success, or an error code on failure. This method is currently not used in Circle itself, and has been defined for user extensions.
+	デバイスの I/O 制御コマンド ``ulCmd`` をコマンド固有のデータ ``pData`` と共に呼び出します。 ``pData`` はコマンド固有のデータを返すことに使用できます。成功した場合は0を、失敗した場合はエラーコードを返します。現在、このメソッドはCircle自体では使用されていません。ユーザによる拡張のために定義されています。
 
 .. cpp:function:: virtual boolean CDevice::RemoveDevice (void)
 
-	Requests the remove of a device from the system for pseudo plug-and-play. This is only implemented for USB devices (e.g. for USB mass-storage devices). Returns ``TRUE`` on the successful removal of the device.
+	擬似プラグアンドプレイ用にシステムからデバイスを取り外すことを要求します。これはUSBデバイス（USB大容量記憶デバイスなど）に対してのみ実装されています。デバイスの取り外しに成功したら ``TRUE`` を返します。
 
 .. cpp:function:: CDevice::TRegistrationHandle CDevice::RegisterRemovedHandler (TDeviceRemovedHandler *pHandler, void *pContext = 0)
 
-	Registers a callback, which is invoked, when this device is removed from the system in terms of hot-plugging. ``pHandler`` gets called, before the device object is deleted. ``pContext`` is a user pointer, which is handed over to the handler. Returns a handle to be handed over to :cpp:func:`CDevice::UnregisterRemovedHandler()`. This method can be called multiple times for a specific device, where the registered handlers will be called in reverse order. Calling this method with ``pHandler = 0`` to unregister is not supported any more.
+	このデバイスがホットプラグでシステムから取り外されたときに呼び出されるコールバックを登録します。デバイスオブジェクトが削除される前に ``pHandler`` が呼び出されます。 ``pContext`` はユーザポインタであり、ハンドラに渡されます。:cpp:func:`CDevice::UnregisterRemovedHandler()` に渡すハンドルを返します。このメソッドは特定のデバイスに対して複数回呼び出すことができ、その場合、登録されたハンドラは逆順で呼び出されます。このメソッドを ``pHandler = 0`` で呼び出すことで登録を解除することはサポートされなくなりました。
 
 .. code-block:: c++
 
@@ -55,11 +55,11 @@ CDevice
 
 .. cpp:function:: void CDevice::UnregisterRemovedHandler (TRegistrationHandle hRegistration)
 
-	Undo the registration of a device removed handler. ``hRegistration`` is the handle, which has been returned by :cpp:func:`CDevice::RegisterRemovedHandler()`.
+	デバイス削除ハンドラの登録を元に戻します。 ``hRegistration`` は :cpp:func:`CDevice::RegisterRemovedHandler()` により返されたハンドルです。
 
 .. note::
 
-	See the file `doc/usb-plug-and-play.txt <https://github.com/rsta2/circle/blob/master/doc/usb-plug-and-play.txt>`_ for detailed information on USB plug-and-play support in Circle!
+	CircleによるUSBプラグアンドプレイのサポートに関する詳細は :doc:`../ref/usb-plug-and-play` を参照してください。
 
 CDeviceNameService
 ^^^^^^^^^^^^^^^^^^
@@ -70,55 +70,56 @@ CDeviceNameService
 
 .. cpp:class:: CDeviceNameService
 
-	In Circle devices can be registered by name and retrieved later using the same name. This is implemented in the class ``CDeviceNameService``.
+	Circleではデバイスを名前で登録して、後でその名前で検索することができます。これは ``CDeviceNameService`` クラスで実装されています。
 
 .. note::
 
-	A device name usually consists of an alpha name prefix, followed by a decimal device index number, which is >= 1. Partitions on block devices have another partition index, which is >= 1 too. Sound devices do not have a device index number. Examples:
+	通常、デバイス名はアルファベットの名前プレフィックスとそれに続く10進数のデバイスインデックス番号（1以上）で構成されます。ブロックデバイスのパーティションには別のパーティションインデックスがあり、これも1以上です。サウンドデバイスにはデバイスインデックス番号はありません。以下はデバイス名の例です。
 
-	==============	====================================================
-	Device name	Description
-	==============	====================================================
-	tty1		First screen device
-	ukbd1		First USB keyboard device
-	umsd1		First USB mass-storage device (e.g. flash drive)
-	umsd1-1		First partition on the first USB mass-storage device
-	sndpwm		PWM sound device
-	null		Null device
-	==============	====================================================
+	==============  ====================================================
+	デバイス名      説明
+	==============  ====================================================
+	tty1            最初のスクリーンデバイス
+	ukbd1           最初のUSBキーボードデバイス
+	umsd1           最初のUSB大容量格納デバイス（フラッシュドライブなど）
+	umsd1-1         最初のUSB大容量格納デバイスの最初のパーティション
+	sndpwm          PWMサウンドデバイス
+	null            ヌルデバイス
+	==============  ====================================================
 
 .. cpp:function:: static CDeviceNameService *CDeviceNameService::Get (void)
 
-	Returns a pointer to the single ``CDeviceNameService`` instance in the system.
+	システムに1つだけある ``CDeviceNameService`` インスタンスへのポインタを返します。
 
 .. cpp:function:: CDevice *CDeviceNameService::GetDevice (const char *pName, boolean bBlockDevice)
 
-	Returns a pointer to the device object of the device, with the name ``pName`` and the device type ``bBlockDevice``, or 0 if the device is not found. ``bBlockDevice`` is ``TRUE``, if this is a block device, otherwise it is a character device.
+	名前が ``pName`` でデバイスタイプが ``bBlockDevice`` のデバイスのデバイスオブジェクトへのポインタを返します。デバイスが存在しない場合は 0 を返します。  ``bBlockDevice``  はこれがブロックデバイスの場合は  ``TRUE`` 、そうでなければキャラクタデバイスです。
 
 .. cpp:function:: CDevice *CDeviceNameService::GetDevice (const char *pPrefix, unsigned nIndex, boolean bBlockDevice)
 
-	Returns a pointer to the device object of the device, with the name prefix ``pName``, the device index ``nIndex`` and the device type ``bBlockDevice``, or 0 if the device is not found. ``bBlockDevice`` is ``TRUE``, if this is a block device, otherwise it is a character device. The resulting name consists of the name prefix followed by the decimal device index (e.g. ``umsd1`` for the first USB mass-storage device).
+	 名前プリフィックスが ``pName`` でデバイスインデックスが ``nIndex``  、デバイスタイプが ``bBlockDevice`` のデバイスのデバイスオブジェクトへのポインタを返します。デバイスが存在しない場合は 0 を返します。  ``bBlockDevice`` はこれがブロックデバイスの場合は  ``TRUE`` 、そうでなければキャラクタデバイスです。検索されるデバイス名は名前プリフィックスとそれに続く10進のデバイスインデックスで構成されます（たとえば、最初のUSB大容量ストレージデバイスは ``umsd1`` です）。
 
 .. cpp:function:: void CDeviceNameService::ListDevices (CDevice *pTarget)
 
+	デバイス名のリストをテキストで生成し、デバイス ``pTarget`` に書き込みます。
 	Generates a textual device name listing and writes it to the device ``pTarget``.
 
 .. cpp:function:: boolean CDeviceNameService::EnumerateDevices (boolean (*pCallback) (CDevice *pDevice, const char *pName, boolean bBlockDevice, void *pParam), void *pParam)
 
-	Enumerates all devices and invokes ``pCallback`` for each device. ``pParam`` is a user defined pointer that will back passed to the callback. Returns ``FALSE`` if the enumeration was canceled from the callback returning ``FALSE``.
+	すべてのデバイスをエヌメレートして各デバイスに対して ``pCallback`` を呼び出します。 ``pParam`` はコールバックに渡すユーザ定義のポインタです。コールバックが ``FALSE`` を返してエヌメレーションがキャンセルされた場合は ``FALSE`` を返します。
 
 .. cpp:function:: void CDeviceNameService::AddDevice (const char *pName, CDevice *pDevice, boolean bBlockDevice)
 
-	Adds the pointer ``pDevice`` to a device object with the name ``pName`` to the device name registry. ``bBlockDevice`` is ``TRUE``, if this is a block device, otherwise it is a character device. This method is usually only used by device driver classes.
+	``pName`` という名前のデバイスオブジェクトへのポインタ ``pDevice`` をデバイス名レジストリに追加します。 ``bBlockDevice`` はこれがブロックデバイスの場合は  ``TRUE`` 、そうでなければキャラクタデバイスです。通常、このメソッドはデバイスドライバクラスでしか使用されません。
 
 .. cpp:function:: void CDeviceNameService::AddDevice (const char *pPrefix, unsigned nIndex, CDevice *pDevice, boolean bBlockDevice)
 
-	Adds the pointer ``pDevice`` to a device object with the name prefix ``pName`` and device index ``nIndex`` to the device name registry. ``bBlockDevice`` is ``TRUE``, if this is a block device, otherwise it is a character device. The resulting name consists of the name prefix followed by the decimal device index (e.g. ``umsd1`` for the first USB mass-storage device). This method is usually only used by device driver classes.
+	名前プリフィックスが ``pName`` でデバイスインデックスが ``nIndex`` のデバイスオブジェクトへのポインタ ``pDevice`` をデバイス名レジストリに追加します。 ``bBlockDevice`` はこれがブロックデバイスの場合は  ``TRUE`` 、そうでなければキャラクタデバイスです。登録されるデバイス名は名前プリフィックスとそれに続く10進のデバイスインデックスで構成されます（たとえば、最初のUSB大容量ストレージデバイスは ``umsd1`` です）。通常、このメソッドはデバイスドライバクラスでしか使用されません。
 
 .. cpp:function:: void CDeviceNameService::RemoveDevice (const char *pName, boolean bBlockDevice)
 
-	Removes the device with the name ``pName`` and the device type ``bBlockDevice`` from the device name registry. ``bBlockDevice`` is ``TRUE``, if this is a block device, otherwise it is a character device. This method is usually only used by device driver classes.
+	デバイス名 ``pName`` でデバイスタイプが ``bBlockDevice`` のデバイスをデバイス名のレジストリから削除します。 ``bBlockDevice`` はこれがブロックデバイスの場合は  ``TRUE`` 、そうでなければキャラクタデバイスです。通常、このメソッドはデバイスドライバクラスでしか使用されません。
 
 .. cpp:function:: void CDeviceNameService::RemoveDevice (const char *pPrefix, unsigned nIndex, boolean bBlockDevice)
 
-	Removes the device with the name prefix ``pPrefix``, the device index ``nIndex`` and the device type ``bBlockDevice`` from the device name registry. ``bBlockDevice`` is ``TRUE``, if this is a block device, otherwise it is a character device. The resulting name consists of the name prefix followed by the decimal device index (e.g. ``umsd1`` for the first USB mass-storage device). This method is usually only used by device driver classes.
+	名前プリフィックスが ``pName`` でデバイスインデックスが ``nIndex`` のデバイスをデバイス名レジストリから削除します。 ``bBlockDevice`` はこれがブロックデバイスの場合は  ``TRUE`` 、そうでなければキャラクタデバイスです。削除されるデバイス名は名前プリフィックスとそれに続く10進のデバイスインデックスで構成されます（たとえば、最初のUSB大容量ストレージデバイスは ``umsd1`` です）。通常、このメソッドはデバイスドライバクラスでしか使用されません。

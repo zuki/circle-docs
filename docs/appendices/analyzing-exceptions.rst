@@ -1,9 +1,9 @@
 .. _analyzing-exceptions:
 
-Analyzing exceptions
-~~~~~~~~~~~~~~~~~~~~
+例外の解析
+~~~~~~~~~~
 
-This appendix explains, how system abort exceptions can be analyzed. The output from the program in section :ref:`a-more-complex-program` is used for this purpose. It looks like this:
+この付録ではシステムアボート例外の解析方法について説明します。この目的のために、セクション :ref:`a-more-complex-program` のプログラム出力を使用します。それは次のようなものです。
 
 .. code-block:: none
 
@@ -26,7 +26,7 @@ This appendix explains, how system abort exceptions can be analyzed. The output 
 	00:00:16.00 except: Prefetch abort (PC 0x500000, FSR 0xD, FAR 0x500000,
 		SP 0x237F80, LR 0xEE7C, PSR 0x20000192)
 
-If you want to detect the instruction, which caused the exception, you can open the file *kernel\*.lst* and search for the address in *PC* (Program Counter). Because this is an invalid address outside the kernel image, you will not find it here, but *LR* (Link Register) specifies the address, from where ``TimerHandler()`` had been called (0xEE7C). The respective address is located at the beginning of a line in *kernel\*.lst* with a trailing colon:
+例外の原因となった命令を検出したい場合は、*kernel\*.lst* ファイルを開き、*PC* (Program Counter) のアドレスを検索します。このアドレスはカーネルイメージの外部にある無効なアドレスなので見つけることはできませんが、*LR* (Link Register) には ``TimerHandler()`` が呼び出されたアドレス (0xEE7C) が指定されています。アドレスは *kernel\*.lst* の行の先頭にあり、末尾にコロンが付いています。
 
 .. code-block:: none
 
@@ -43,6 +43,6 @@ If you want to detect the instruction, which caused the exception, you can open 
             ee80:	e3a01014 	mov	r1, #20
         ...
 
-Thus ``TimerHandler()`` had been called by the instruction "blx r3", the preceeding instruction of the given address.
+したがって、 ``TimerHandler()`` は指定されたアドレスの前の命令である "blx r3" によって呼び出されたことがわかります。
 
-The several listed addresses from the *stack[]* allow to do a backtrace, but not every shown address needs to be valid. Just search for the addresses in the *kernel\*.lst* file, starting with the first one, and you will get the information, which function has been called from which other function (inside-out).
+*stack[]* からリストされたアドレスからバックトレースが可能ですが、表示されたすべてのアドレスが有効でなくても構いません。 *kernel\*.lst* ファイルで最初のアドレスを検索すればよいだけです。そうすれば、どの関数がどの関数から呼び出されたかという情報が得られます。

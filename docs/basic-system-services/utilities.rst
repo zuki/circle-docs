@@ -1,7 +1,7 @@
-Utilities
-~~~~~~~~~
+ユーティリティ
+~~~~~~~~~~~~~~
 
-This section lists utility classes and functions, which help to implement Circle applications.
+このセクションではCircleアプリケーションの実装に役立つユーティリティクラスとユーティリティ関数を紹介します。
 
 .. _CString:
 
@@ -228,46 +228,46 @@ This class implements an allocation pool for numbers. The methods of this class 
 
 	Returns ``nNumber``, which has been allocated earlier, to the number pool for reuse.
 
-Atomic memory access
-^^^^^^^^^^^^^^^^^^^^
+アトミックなメモリアクセス
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: c
 
 	#include <circle/atomic.h>
 
-This header file defines some functions, which implement an atomic access to an aligned ``int`` variable in memory. These functions can be useful for synchronization purposes, especially for multi-core applications, where using a spin lock would be too time consuming. All accesses to such a variable must use one of the following functions, to ensure them being atomic.
+このヘッダーファイルはメモリ上のアラインされた ``int`` 変数へのアトミックアクセスを実装するいくつかの関数を定義しています。これらの関数は同期の目的で使用すると役に立つでしょう。特に、マルチコアアプリケーションでスピンロックでは時間がかかりすぎるような場合に便利です。このような変数へのアクセスは、アトミックであることを保証するために、以下の関数のいずれかを使用する必要があります。
 
 .. c:function:: int AtomicGet (const volatile int *pVar)
 
-	Returns the value of the ``int`` variable at ``pVar``.
+	``pVar`` にある ``int`` 変数のアタを返します。
 
 .. c:function:: int AtomicSet (volatile int *pVar, int nValue)
 
-	Sets the ``int`` variable at ``pVar`` to ``nValue`` and returns ``nValue``.
+	``pVar`` にある ``int`` 変数に ``nValue`` をセットして ``nValue`` を返します。
 
 .. c:function:: int AtomicExchange (volatile int *pVar, int nValue)
 
-	Sets the ``int`` variable at ``pVar`` to ``nValue`` and returns the previous value.
+	``pVar`` にある ``int`` 変数に ``nValue`` をセットして元の値を返します。
 
 .. c:function:: int AtomicCompareExchange (volatile int *pVar, int nCompare, int nValue)
 
-	Sets the ``int`` variable at ``pVar`` to ``nValue``, if the previous value of the variable was ``nCompare``, and returns the previous value of the variable.
+	``pVar`` にある ``int`` 変数の元の値が ``nCompare`` だった場合、 ``nValue`` をセットして元の値を返します。
 
 .. c:function:: int AtomicAdd (volatile int *pVar, int nValue)
 
-	Adds ``nValue`` to the ``int`` variable at ``pVar``. Returns the result of the operation.
+	``pVar`` にある ``int`` 変数に ``nValue`` を加算します。演算結果を返します。
 
 .. c:function:: int AtomicSub (volatile int *pVar, int nValue)
 
-	Subtracts ``nValue`` from the ``int`` variable at ``pVar``. Returns the result of the operation.
+	``pVar`` にある ``int`` 変数から ``nValue`` を減算します。演算結果を返します。
 
 .. c:function:: int AtomicIncrement (volatile int *pVar)
 
-	Increments the ``int`` variable at ``pVar`` by 1. Returns the result of the operation.
+	``pVar`` にある ``int`` 変数に 1 を加算します。演算結果を返します。
 
 .. c:function:: int AtomicDecrement (volatile int *pVar)
 
-	Decrements the ``int`` variable at ``pVar`` by 1. Returns the result of the operation.
+	``pVar`` にある ``int`` 変数から 1 を減算します。演算結果を返します。
 
 C standard library functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
