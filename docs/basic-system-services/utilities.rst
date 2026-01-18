@@ -310,6 +310,7 @@ String functions
 """"""""""""""""
 
 .. c:function:: size_t strlen (const char *pString)
+.. c:function:: size_t strnlen (const char *pString, size_t nMaxLen)
 .. c:function:: int strcmp (const char *pString1, const char *pString2)
 .. c:function:: int strcasecmp (const char *pString1, const char *pString2)
 .. c:function:: int strncmp (const char *pString1, const char *pString2, size_t nMaxLen)
