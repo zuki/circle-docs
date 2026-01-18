@@ -155,7 +155,7 @@ The class ``C2DGraphics`` is part of the Circle base library and can be used to 
 LVGL
 ^^^^
 
-The `Light and Versatile Graphics Library <https://lvgl.io/>`_ (LVGL) v9.2.2 can be used with Circle. This library provides an API, which is based on the C language. See the `LVGL documentation <https://docs.lvgl.io/9.2/>`_ for details.
+The `Light and Versatile Graphics Library <https://lvgl.io/>`_ (LVGL) v9.4.0 can be used with Circle. This library provides an API, which is based on the C language. See the `LVGL documentation <https://docs.lvgl.io/9.4/>`_ for details.
 
 .. code-block:: cpp
 
