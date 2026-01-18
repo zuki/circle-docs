@@ -243,7 +243,7 @@ Provides a method to synchronize the execution of tasks with an event. The event
 
 	Creates the synchronization event. ``bState`` is the initial state of the event (default cleared).
 
-.. cpp:function:: boolean CSynchronizationEvent::GetState (void)
+.. cpp:function:: boolean CSynchronizationEvent::GetState (void) const
 
 	Returns the current state for the synchronization event.
 
