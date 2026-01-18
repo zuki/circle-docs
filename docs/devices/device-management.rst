@@ -39,7 +39,11 @@ CDevice
 
 .. cpp:function:: virtual int CDevice::IOCtl (unsigned long ulCmd, void *pData)
 
-	Invokes the I/O control command ``ulCmd`` of the device with the command specific data ``pData``. ``pData`` can be used to return command specific data too. Returns zero on success, or an error code on failure. This method is currently not used in Circle itself, and has been defined for user extensions.
+	Invokes the I/O control command ``ulCmd`` of the device with the command specific data ``pData``. ``pData`` can be used to return command specific data too. Returns zero on success, or an error code on failure.
+
+	The following I/O control command is currently defined:
+
+	* DEVICE_IOCTL_SYNC (Flushes a NVMe device)
 
 .. cpp:function:: virtual boolean CDevice::RemoveDevice (void)
 
