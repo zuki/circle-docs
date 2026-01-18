@@ -176,6 +176,21 @@ CSocket
 
 	Returns a pointer to the IP address of the connected remote host (4 bytes) or 0, if the socket is not connected.
 
+.. cpp:function:: TStatus CSocket::GetStatus (void) const
+
+	Returns the socket status.
+
+.. cpp:struct:: CSocket::TStatus
+
+	Describes the socket status with the following fields:
+
+	* bConnected (Is connected)
+	* bRxReady (Ready to receive without blocking, or shutdown from peer)
+	* bTxReady (Ready to transmit without blocking)
+	* bException (Exception arrived, always FALSE)
+
+	For listening sockets ``bRxReady`` is ``TRUE``, when a client has connected and a following ``Accept()`` will return without blocking.
+
 Clients
 ^^^^^^^
 
