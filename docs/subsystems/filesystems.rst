@@ -96,6 +96,7 @@ USB:	1:	first FAT partition	first USB mass-storage device
 USB2:	2:	first FAT partition	second USB mass-storage device
 USB3:	3:	first FAT partition	third USB mass-storage device
 FD:	4:	not partitioned		USB floppy disk device
+NVME:	5:	first FAT partition	NVMe controller
 ======	======	======================	==============================
 
 .. important::

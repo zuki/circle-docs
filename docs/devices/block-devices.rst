@@ -3,13 +3,14 @@ Block devices
 
 Block devices provide the access to physical or logical drives (e.g. SD card, USB flash drive). They allow to read and write consecutive blocks of bytes of a fixed block size. Circle supports only block devices with a size of 512 bytes. All block devices provide the following methods, which are derived from the class :cpp:class:`CDevice`. The detailed class descriptions below list additional class-specific methods only.
 
-==============	======================================	============================
+==============	======================================	==============================
 Method		Purpose					Description
-==============	======================================	============================
+==============	======================================	==============================
 Read()		read block(s) from device		:cpp:func:`CDevice::Read()`
 Write()		write block(s) to device		:cpp:func:`CDevice::Write()`
 Seek()		set read/write pointer position		:cpp:func:`CDevice::Seek()`
-==============	======================================	============================
+GetSize()	return device size in number of bytes	:cpp:func:`CDevice::GetSize()`
+==============	======================================	==============================
 
 CEMMCDevice
 ^^^^^^^^^^^
@@ -39,6 +40,29 @@ CEMMCDevice
 .. cpp:function:: const u32 *CEMMCDevice::GetID (void)
 
 	Returns a pointer to the 32 byte (four ``u32`` words) long identifier of the inserted SD card. This information can be used to recognize a specific SD card again and is only valid, when ``Initialize()`` was successfully called before.
+
+CNVMeDevice
+^^^^^^^^^^^
+
+.. code-block:: cpp
+
+	#include <nvme/nvme.h>
+
+.. cpp:class:: CNVMeDevice : public CDevice
+
+	This class provides the physical access to NVMe controllers on the Raspberry Pi 5. This class has to be manually instantiated, if an application wants to access such a device. This is demonstrated in `addon/nvme/sample <https://github.com/rsta2/circle/tree/master/addon/nvme/sample>`_. There can be only one instance of this device, which has the name ``nvme1`` in the device name service.
+
+.. important::
+
+	This support is currently only tested for v1.4 NVMe controllers and is experimental. v1.3 controllers may work too. Be sure that your NVMe does not contain important data, when you want to test it!
+
+.. cpp:function:: CNVMeDevice::CNVMeDevice (CInterruptSystem *pInterrupt)
+
+	Creates the instance of this class. ``pInterruptSystem`` is a pointer to the system interrupt object.
+
+.. cpp:function:: boolean CNVMeDevice::Initialize (void)
+
+	Detects and initializes the NVMe controller. Returns ``TRUE`` on success.
 
 CUSBBulkOnlyMassStorageDevice
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
