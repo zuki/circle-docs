@@ -43,6 +43,10 @@ Level	Severity	Description
 
 	Sets the target for the log messages to a new device.
 
+.. cpp:function:: CDevice *CLogger::GetTarget (void) const
+
+	Returns a pointer to target device (may be ``nullptr``, if not assigned).
+
 .. cpp:function:: static CLogger *CLogger::Get (void)
 
 	Returns a pointer to the only instance of ``CLogger``.
