@@ -407,9 +407,9 @@ CI2SSoundBaseDevice
 
 	* DeviceModeTXOnly (output)
 	* DeviceModeRXOnly (input)
-	* DeviceModeTXRX (output and input, not on Raspberry Pi 5)
+	* DeviceModeTXRX (output and input)
 
-	``nHWChannels`` specifies the number of hardware channels (normally 2, can be 8 on the Raspberry Pi 5).
+	``nHWChannels`` specifies the number of hardware channels (normally 2, can be 8 on the Raspberry Pi 5 for output).
 
 .. note::
 
