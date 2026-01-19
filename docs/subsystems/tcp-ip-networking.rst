@@ -219,7 +219,7 @@ CDNSClient
 
 .. cpp:function:: boolean CDNSClient::Resolve (const char *pHostname, CIPAddress *pIPAddress)
 
-	Resolves the host name ``pHostname`` to an IP address, returned in ``*pIPAddress``. ``pHostname`` can be a dotted IP address string (e.g. "192.168.0.42") too, which will be converted. Returns ``TRUE`` on success.
+	Resolves the host name ``pHostname`` to an IP address, returned in ``*pIPAddress``. ``pHostname`` can be a dotted IP address string (e.g. "192.168.0.42") too, which will be converted. The host name `"localhost"` is converted to the own IP address of the network subsystem. Returns ``TRUE`` on success.
 
 CHTTPClient
 """""""""""
