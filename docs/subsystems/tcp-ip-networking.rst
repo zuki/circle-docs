@@ -124,6 +124,10 @@ CSocket
 
 	Destroys a ``CSocket`` object and terminates an active connection.
 
+.. cpp:function:: int CSocket::GetProtocol (void) const
+
+	Returns ``IPPROTO_TCP`` or ``IPPROTO_UDP``.
+
 .. cpp:function:: int CSocket::Bind (u16 usOwnPort)
 
 	Binds the port number ``usOwnPort`` to this socket. Returns 0 on success or < 0 on error.
