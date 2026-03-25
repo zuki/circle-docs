@@ -46,6 +46,9 @@ CMachineInfo
 * MachineModelCM4
 * MachineModelCM4S
 * MachineModel5
+* MachineModel500
+* MachineModelCM5
+* MachineModelCM5Lite
 * MachineModelUnknown
 
 .. cpp:function:: const char *CMachineInfo::GetMachineName (void) const
@@ -70,6 +73,14 @@ CMachineInfo
 * SoCTypeBCM2711
 * SoCTypeBCM2712
 * SoCTypeUnknown
+
+.. cpp:function:: TSoCStepping CMachineInfo::GetSoCStepping (void) const
+
+	Returns the stepping of the SoC (System on a Chip), the application is running on. Possible values are:
+
+* SoCSteppingC1
+* SoCSteppingD0
+* SoCSteppingUnknown
 
 .. cpp:function:: unsigned CMachineInfo::GetRAMSize (void) const
 
@@ -183,6 +194,10 @@ CKernelOptions
 .. cpp:function:: const unsigned *CKernelOptions::GetTouchScreen (void) const
 
 	Returns the calibration parameters for the touchscreen. The returned pointer refers to an array with four elements (min-x, max-x, min-y, max-y). It is ``nullptr``, if the option ``touchscreen=`` is not set.
+
+.. cpp:function:: unsigned CKernelOptions::GetBacklight (void) const
+
+	Returns the backlight level to be set on the Raspberry Pi Official 7" Touchscreen, or 0, if the option is not defined.
 
 .. cpp:function:: const char *CKernelOptions::GetAppOptionString (const char *pOption, const char *pDefault = nullptr) const
 

@@ -117,9 +117,36 @@ CUSBCDCGadget
 
 	The `test/usb-serial-cdc-gadget` is prepared to work as a serial CDC gadget. Please read the *README* file in the test's directory for information about the required configuration. You have to define your own USB vendor ID as system option ``USB_GADGET_VENDOR_ID``.
 
-.. cpp:function:: CUSBCDCGadget::CUSBCDCGadget (CInterruptSystem *pInterruptSystem)
+.. cpp:function:: CUSBCDCGadget::CUSBCDCGadget (CInterruptSystem *pInterruptSystem, u16 usVendorID = USB_GADGET_VENDOR_ID, u16 usProductID = USB_GADGET_DEVICE_ID_SERIAL_CDC)
 
-	Creates an instance of this class. ``pInterruptSystem`` is a pointer to the interrupt system object.
+	Creates an instance of this class. ``pInterruptSystem`` is a pointer to the interrupt system object. ``usVendorID`` is the USB vendor ID to be used for the gadget. ``usProductID`` is the USB product ID to be used for the gadget.
+
+CUSBMSDGadget
+"""""""""""""
+
+.. code-block:: cpp
+
+	#include <circle/usb/gadget/usbmsdgadget.h>
+
+.. cpp:class:: CUSBMSDGadget : public CDWUSBGadget
+
+	This class implements an USB mass-storage device gadget, which can be mounted to an USB host. The device appears in the host system as an external USB drive. You should create a member of this class in the ``CKernel`` class of your application. Only a few methods of this class are described here. More methods are described for the base class :cpp:class:`CDWUSBGadget`.
+
+.. note::
+
+	The `test/usb-msd-gadget` is prepared to work as a mass-storage device gadget. Please read the *README* file in the test's directory for information about the required configuration. You have to define your own USB vendor ID as system option ``USB_GADGET_VENDOR_ID``.
+
+.. cpp:function:: CUSBMSDGadget::CUSBMSDGadget (CInterruptSystem *pInterruptSystem, CDevice *pDevice = nullptr, u16 usVendorID = USB_GADGET_VENDOR_ID, u16 usProductID = USB_GADGET_DEVICE_ID_MSD)
+
+	Creates an instance of this class. ``pInterruptSystem`` is a pointer to the interrupt system object. ``pDevice`` can be a pointer to the block device, to be controlled by this gadget. The block device must be initialized yet, when it is specified here. :cpp:func:`SetDevice()` has to be called later, when ``pDevice`` is not specified here. ``usVendorID`` is the USB vendor ID to be used for the gadget. ``usProductID`` is the USB product ID to be used for the gadget.
+
+.. cpp:function:: void CUSBMSDGadget::SetDevice (CDevice *pDevice)
+
+	Call this, if ``pDevice`` has not been specified to the constructor. ``pDevice`` Is a pointer to the block device, to be controlled by this gadget
+
+.. cpp:function:: void CUSBMSDGadget::Update (void)
+
+	This method must be called periodically from ``TASK_LEVEL`` to allow I/O operations.
 
 CUSBMIDIGadget
 """"""""""""""
@@ -136,9 +163,9 @@ CUSBMIDIGadget
 
 	The `sample/29-miniorgan` is prepared to work as a MIDI gadget. Please read the *README* file in the sample's directory for information about the required configuration. Beside the define ``USB_GADGET_MODE``, which enables the gadget mode in the sample, you have to define your own USB vendor ID as system option ``USB_GADGET_VENDOR_ID``.
 
-.. cpp:function:: CUSBMIDIGadget::CUSBMIDIGadget (CInterruptSystem *pInterruptSystem)
+.. cpp:function:: CUSBMIDIGadget::CUSBMIDIGadget (CInterruptSystem *pInterruptSystem, u16 usVendorID = USB_GADGET_VENDOR_ID, u16 usProductID = USB_GADGET_DEVICE_ID_MIDI)
 
-	Creates an instance of this class. ``pInterruptSystem`` is a pointer to the interrupt system object.
+	Creates an instance of this class. ``pInterruptSystem`` is a pointer to the interrupt system object. ``usVendorID`` is the USB vendor ID to be used for the gadget. ``usProductID`` is the USB product ID to be used for the gadget.
 
 CDWUSBGadget
 """"""""""""

@@ -21,7 +21,7 @@ TCP/IPネットワーキング
 
 .. note::
 
-	Circleは現在のところ、RFC1112に基づき、IPマルチキャストサポートレベル1（送信のみ）をサポートしています。
+	Circleは現在のところ、IGMPv2をサポート (RFC2236) したRFC1112に基づき、IPマルチキャストサポートレベル2（送信と受信）をサポートしています。
 
 CNetSubSystem
 ^^^^^^^^^^^^^
@@ -124,6 +124,10 @@ CSocket
 
 	``CSocket`` オブジェクトを破棄してアクティブなコネクションを終了させます。
 
+.. cpp:function:: int CSocket::GetProtocol (void) const
+
+	Returns ``IPPROTO_TCP`` or ``IPPROTO_UDP``.
+
 .. cpp:function:: int CSocket::Bind (u16 usOwnPort)
 
 	ポート番号 ``usOwnPort`` をこのソケットにバインドします。成功した場合は 0、エラーの場合は < 0 を返します。
@@ -156,13 +160,48 @@ CSocket
 
 	リモートホストからメッセージを受信し、リモートホストのホスト/ポートを返します。 ``pBuffer`` はメッセージバッファへのポインタ、 ``nLength`` はそのバイト長です。 ``nLength`` は少なくとも ``FRAME_BUFFER_SIZE`` である必要があります。そうでないとデータが消失する可能性があります。 ``nFlags`` には ``MSG_DONTWAIT`` (ノンブロッキング操作) または 0 (ブロッキング操作) を指定することができます。 ``pForeignIP`` は ``CIPAddress`` オブジェクトへのポインタで、メッセージを送信したホストのIPアドレスが設定されます。メッセージが送信されたポート番号は ``*pForeignPort`` に設定されます。受信したメッセージの長さを返します。 ``MSG_DONTWAIT`` を指定しており、利用可能なメッセージがない場合は 0 を返します。エラーの場合は < 0 を返します。
 
+.. cpp:function:: int CSocket::SetOptionReceiveTimeout (unsigned nMicroSeconds)
+
+	Sets the timeout ``nMicroSeconds`` (in �s, or 0 to wait forever (default)) for ``Receive()`` and ``ReceiveFrom()``. The timeout applies only, when the flag ``MSG_DONTWAIT`` is not used. Returns 0 on success or < 0 on error.
+
+.. cpp:function:: int CSocket::SetOptionSendTimeout (unsigned nMicroSeconds)
+
+	Sets the timeout ``nMicroSeconds`` (in �s, or 0 to wait forever (default)) for ``Send()`` and ``SendTo()``. The timeout applies only, when the flag ``MSG_DONTWAIT`` is not used. Returns 0 on success or < 0 on error.
+
 .. cpp:function:: int CSocket::SetOptionBroadcast (boolean bAllowed)
 
 	``bAllowed`` はこのソケットでブロードキャストメッセージの送受信を許可するか否を指定します (デフォルトは ``FALSE``)。 ``Bind()`` または ``Connect()`` の後に ``bAllowed = TRUE`` を指定してこのメソッドを呼び出すと、ブロードキャストメッセージを送受信できるようになります (TCP ソケットでは無視されます)。成功した場合は 0、エラーの場合は < 0 を返します。
 
+.. cpp:function:: int CSocket::SetOptionAddMembership (const CIPAddress &rGroupAddress)
+
+	Adds the IP multicast host group with the group address ``rGroupAddress`` to an UDP socket. Returns 0 on success or < 0 on error.
+
+.. note::
+
+	Only one host group is allowed per socket. Only eight host groups are allowed in the system.
+
+.. cpp:function:: int CSocket::SetOptionDropMembership (const CIPAddress &rGroupAddress)
+
+	Drops the IP multicast host group with the group address ``rGroupAddress`` from an UDP socket. Returns 0 on success or < 0 on error.
+
 .. cpp:function:: const u8 *CSocket::GetForeignIP (void) const
 
 	接続したリモートホストのIPアドレス（4バイト）へのポインタを返します。ソケットが接続されていない場合は 0 を返します。
+
+.. cpp:function:: TStatus CSocket::GetStatus (void) const
+
+	Returns the socket status.
+
+.. cpp:struct:: CSocket::TStatus
+
+	Describes the socket status with the following fields:
+
+	* bConnected (Is connected)
+	* bRxReady (Ready to receive without blocking, or shutdown from peer)
+	* bTxReady (Ready to transmit without blocking)
+	* bException (Exception arrived, always FALSE)
+
+	For listening sockets ``bRxReady`` is ``TRUE``, when a client has connected and a following ``Accept()`` will return without blocking.
 
 Clients
 ^^^^^^^
@@ -184,7 +223,7 @@ CDNSClient
 
 .. cpp:function:: boolean CDNSClient::Resolve (const char *pHostname, CIPAddress *pIPAddress)
 
-	Resolves the host name ``pHostname`` to an IP address, returned in ``*pIPAddress``. ``pHostname`` can be a dotted IP address string (e.g. "192.168.0.42") too, which will be converted. Returns ``TRUE`` on success.
+	Resolves the host name ``pHostname`` to an IP address, returned in ``*pIPAddress``. ``pHostname`` can be a dotted IP address string (e.g. "192.168.0.42") too, which will be converted. The host name `"localhost"` is converted to the own IP address of the network subsystem. Returns ``TRUE`` on success.
 
 CHTTPClient
 """""""""""
@@ -200,7 +239,7 @@ CHTTPClient
 
 .. note::
 
-	In the Internet of today there are only a few webservers any more, which provide plain HTTP access. For HTTPS (HTTP over TLS) access with Circle you can use the `circle-stdlib <https://github.com/smuehlst/circle-stdlib>`_ project, which includes Circle as a submodule.
+	In the Internet of today there are only a few webservers any more, which provide plain HTTP access. For HTTPS (HTTP over TLS) access with Circle you can use the `circle-stdlib <https://codeberg.org/larchcone/circle-stdlib>`_ project, which includes Circle as a submodule.
 
 .. cpp:function:: CHTTPClient::CHTTPClient (CNetSubSystem *pNetSubSystem, CIPAddress &rServerIP, u16 usServerPort = HTTP_PORT, const char *pServerName = 0)
 
@@ -366,6 +405,64 @@ CSysLogDaemon
 
 	Creates the ``CSysLogDaemon`` task. ``pNetSubSystem`` is a pointer to the network subsystem. ``rServerIP`` is the IP address of the syslog server. ``usServerPort`` is the port number of the syslog server (default 514). This object must be created using the ``new`` operator.
 
+CmDNSDaemon
+"""""""""""
+
+.. code-block:: cpp
+
+	#include <circle/net/mdnsdaemon.h>
+
+.. cpp:class:: CmDNSDaemon : public CTask
+
+	This mDNS responder task determines and maintains our mDNS hostname on the local network. Name collisions with other hosts will be resolved by appending a numeric suffix to the hostname.
+
+.. note::
+
+	The daemon is automatically started, when someone requests a pointer to it. This has been added to the :cpp:class:`CmDNSPublisher` class, which works in conjunction with ``CmDNSDaemon``.
+
+.. cpp:function:: CmDNSDaemon::CmDNSDaemon (CNetSubSystem *pNet)
+
+	Creates the ``CmDNSDaemon`` task. ``pNet`` is a pointer to the network subsystem.
+
+.. cpp:function:: boolean CmDNSDaemon::IsRunning (void) const
+
+	Returns ``TRUE``, when the responder has been successfully been initialized.
+
+.. cpp:function:: CString CmDNSDaemon::GetHostname (void) const
+
+	Returns our own mDNS hostname without ".local" domain suffix.
+
+.. cpp:function:: unsigned CmDNSDaemon::GetSuffix (void) const
+
+	Returns our own mDNS hostname suffix number (e.g. 2 for "-2"). The first host with this hostname prefix has the suffix number 1, which is not appended to the hostname above.
+
+.. cpp:function:: static CmDNSDaemon *CmDNSDaemon::Get (void)
+
+	Returns a pointer to the one and only mDNS responder task object. The object is automatically created, if it does not exist yet.
+
+CmDNSPublisher
+""""""""""""""
+
+.. code-block:: cpp
+
+	#include <circle/net/mdnspublisher.h>
+
+.. cpp:class:: CmDNSPublisher : public CTask
+
+	This class is a mDNS (aka Bonjour) client background task. It publishes one or multiple services in a local network using multicast packets. See `test/mdns-publisher` for an example.
+
+.. cpp:function:: CmDNSPublisher::CmDNSPublisher (CNetSubSystem *pNet)
+
+	Creates the ``CmDNSPublisher`` task. ``pNet`` is a pointer to the network subsystem.
+
+.. cpp:function:: boolean CmDNSPublisher::PublishService (const char *pServiceName, const char *pServiceType, u16 usServicePort, const char *ppText[] = nullptr)
+
+	Starts publishing a service with the name ``pServiceName``, the type ``pServiceType`` (e.g. ``ServiceTypeAppleMIDI``) and port number ``usServicePort`` (in host byte order). ``ppText`` is an optional array of pointers to the descriptions of the service (terminated with a ``nullptr``). Returns ``TRUE``, if the operation was successful.
+
+.. cpp:function:: boolean CmDNSPublisher::UnpublishService (const char *pServiceName)
+
+	Stops publishing the service ``pServiceName`` (same name as when published). Returns ``TRUE``, if the operation was successful.
+
 Servers
 ^^^^^^^
 
@@ -385,9 +482,9 @@ CHTTPDaemon
 
 	This class uses a listener/worker model. The initially created task listens for incoming requests (listener) and spawns a child task (worker), which processes the request and terminates afterwards.
 
-.. cpp:function:: CHTTPDaemon::CHTTPDaemon (CNetSubSystem *pNetSubSystem, CSocket *pSocket = 0, unsigned nMaxContentSize = 0, u16 nPort = HTTP_PORT, unsigned nMaxMultipartSize = 0)
+.. cpp:function:: CHTTPDaemon::CHTTPDaemon (CNetSubSystem *pNetSubSystem, CSocket *pSocket = 0, unsigned nMaxContentSize = 0, u16 nPort = HTTP_PORT, unsigned nMaxMultipartSize = 0, unsigned nTimeoutSeconds = 0)
 
-	Creates the ``CHTTPDaemon`` task. ``pNetSubSystem`` is a pointer to the network subsystem. ``pSocket`` is 0 for first created instance (listener). ``nMaxContentSize`` is the buffer size for the content of the created worker tasks. Set this parameter to the maximum length in bytes of a webpage, which is generated by your server. ``nPort`` is the port number to listen on (default 80). ``nMaxMultipartSize`` is the buffer size for received multipart form data. If your server receives requests, which include multipart form data, this parameter must be set to the maximum length of this data, which you want to process.
+	Creates the ``CHTTPDaemon`` task. ``pNetSubSystem`` is a pointer to the network subsystem. ``pSocket`` is 0 for first created instance (listener). ``nMaxContentSize`` is the buffer size for the content of the created worker tasks. Set this parameter to the maximum length in bytes of a webpage, which is generated by your server. ``nPort`` is the port number to listen on (default 80). ``nMaxMultipartSize`` is the buffer size for received multipart form data. If your server receives requests, which include multipart form data, this parameter must be set to the maximum length of this data, which you want to process. An arriving HTTP request will be aborted after ``nTimeoutSeconds`` seconds, if it has not been completed until then (0 to wait forever).
 
 .. cpp:function:: virtual CHTTPDaemon *CHTTPDaemon::CreateWorker (CNetSubSystem *pNetSubSystem, CSocket *pSocket) = 0
 
@@ -475,6 +572,10 @@ CTFTPDaemon
 .. cpp:function:: virtual int CTFTPDaemon::FileWrite (const void *pBuffer, unsigned nCount) = 0
 
 	Virtual method entered to write ``nCount`` bytes from ``pBuffer`` into the currently open file. Returns the number of bytes written, or < 0 on error.
+
+.. cpp:function:: virtual boolean CTFTPDaemon::IsAccessAllowed (const CIPAddress *pForeignIP, const char *pFilename, boolean bWriteRequest)
+
+	Virtual method, which can be overwritten to implement an access control. Has to return ``TRUE``, if the access from ``pForeignIP`` to ``pFileName`` is allowed. ``bWriteRequest`` is ``TRUE``, if the file is about to be written.
 
 .. cpp:function:: virtual void CTFTPDaemon::UpdateStatus (TStatus Status, const char *pFileName)
 
@@ -617,6 +718,10 @@ CMACAddress
 
 	Sets the MAC address to the (Ethernet) broadcast address (FF:FF:FF:FF:FF:FF).
 
+.. cpp:function:: void CMACAddress::SetMulticast (const u8 *pIPAddress)
+
+	Sets the related (Ethernet) MAC address (01:00:5E:xx:xx:xx) for the IP address ``pIPAddress``.
+
 .. cpp:function:: const u8 *CMACAddress::Get (void) const
 
 	Returns a pointer to the MAC address as an array with 6 bytes.
@@ -628,6 +733,10 @@ CMACAddress
 .. cpp:function:: boolean CMACAddress::IsBroadcast (void) const
 
 	Returns ``TRUE`` if the MAC address is the (Ethernet) broadcast address (FF:FF:FF:FF:FF:FF).
+
+.. cpp:function:: boolean CMACAddress::IsMulticast (void) const
+
+	Returns ``TRUE`` if the MAC address is an (Ethernet) multicast address (01:00:5E:xx:xx:xx).
 
 .. cpp:function:: unsigned CMACAddress::GetSize (void) const
 

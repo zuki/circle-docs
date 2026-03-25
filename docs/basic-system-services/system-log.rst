@@ -43,6 +43,10 @@ Level	Severity	Description
 
 	Sets the target for the log messages to a new device.
 
+.. cpp:function:: CDevice *CLogger::GetTarget (void) const
+
+	Returns a pointer to target device (may be ``nullptr``, if not assigned).
+
 .. cpp:function:: static CLogger *CLogger::Get (void)
 
 	Returns a pointer to the only instance of ``CLogger``.
@@ -67,7 +71,7 @@ Read the log
 
 .. cpp:function:: int CLogger::Read (void *pBuffer, unsigned nCount, boolean bClear = TRUE)
 
-	Reads and deletes maximal ``nCount`` characters from the log buffer. The read characters will be returned in ``pBuffer``. Set ``bClear`` to ``TRUE`` to remove the returned bytes from the buffer or to ``FALSE`` to keep them. Returns the number of characters actually read.
+	Reads and deletes maximal ``nCount`` characters from the log buffer. The read characters will be returned in ``pBuffer``. Set ``bClear`` to ``TRUE`` to remove the returned bytes from the buffer or to ``FALSE`` to keep them. Returns the number of characters actually read or 0, if the log buffer is empty.
 
 .. cpp:function:: boolean CLogger::ReadEvent (TLogSeverity *pSeverity, char *pSource, char *pMessage, time_t *pTime, unsigned *pHundredthTime, int *pTimeZone)
 

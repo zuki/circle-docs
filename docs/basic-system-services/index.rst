@@ -22,5 +22,6 @@ Circleプロジェクトは集中型の単一C++ヘッダーファイルを提�
 	cpu-clock-rate-management
 	firmware-access
 	direct-hardware-access
+	font-service
 	utilities
 	debugging-support

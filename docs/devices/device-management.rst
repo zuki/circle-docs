@@ -39,7 +39,11 @@ CDevice
 
 .. cpp:function:: virtual int CDevice::IOCtl (unsigned long ulCmd, void *pData)
 
-	デバイスの I/O 制御コマンド ``ulCmd`` をコマンド固有のデータ ``pData`` と共に呼び出します。 ``pData`` はコマンド固有のデータを返すことに使用できます。成功した場合は0を、失敗した場合はエラーコードを返します。現在、このメソッドはCircle自体では使用されていません。ユーザによる拡張のために定義されています。
+	デバイスの I/O 制御コマンド ``ulCmd`` をコマンド固有のデータ ``pData`` と共に呼び出します。 ``pData`` はコマンド固有のデータを返すことに使用できます。成功した場合は0を、失敗した場合はエラーコードを返します。
+	
+	現在、次の I/O 制御コマンドは定義されていません。
+
+	* DEVICE_IOCTL_SYNC (Flushes a NVMe device)
 
 .. cpp:function:: virtual boolean CDevice::RemoveDevice (void)
 

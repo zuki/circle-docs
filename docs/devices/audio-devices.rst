@@ -407,9 +407,9 @@ CI2SSoundBaseDevice
 
 	* DeviceModeTXOnly (output)
 	* DeviceModeRXOnly (input)
-	* DeviceModeTXRX (output and input, not on Raspberry Pi 5)
+	* DeviceModeTXRX (output and input)
 
-	``nHWChannels`` specifies the number of hardware channels (normally 2, can be 8 on the Raspberry Pi 5).
+	``nHWChannels`` specifies the number of hardware channels (normally 2, can be 8 on the Raspberry Pi 5 for output).
 
 .. note::
 
@@ -451,10 +451,6 @@ CUSBSoundBaseDevice
 CHDMISoundBaseDevice
 ^^^^^^^^^^^^^^^^^^^^
 
-.. note::
-
-	This class is currently not available on the Raspberry Pi 5.
-
 .. code-block:: cpp
 
 	#include <circle/sound/hdmisoundbasedevice.h>
@@ -467,7 +463,7 @@ CHDMISoundBaseDevice
 
 	This driver supports only two channels (Stereo).
 
-	This driver does not support HDMI1 on the Raspberry Pi 4 and 400 (HDMI0 only).
+	This driver does not support HDMI1 on the Raspberry Pi 4, 5 and 400 (HDMI0 only).
 
 	This driver supports a DMA and a polling mode. The latter is intended for very time critical and cache-sensitive applications, which cannot use interrupts.
 
@@ -597,9 +593,9 @@ CUSBMIDIDevice
 
 	Sends one or more packets in the encoded USB MIDI event packet format. ``pData`` is a pointer to the packet buffer. ``nLength`` is the length of the packet buffer in bytes, which must be a multiple of 4. Returns ``TRUE``, if the operation has been successful. This function fails, if ``nLength`` is not a multiple of 4 or the send function is not supported. The format of the USB MIDI event packets is not validated.
 
-.. cpp:function:: boolean CUSBMIDIDevice::SendPlainMIDI (unsigned nCable, const u8 *pData, unsigned nLength)
+.. cpp:function:: boolean CUSBMIDIDevice::SendPlainMIDI (unsigned nCable, const u8 *pData, unsigned nLength, unsigned nChunkSize = 0)
 
-	Sends one or more messages in plain MIDI message format. ``nCable`` is the number of the virtual MIDI cable (0..15). ``pData`` is a pointer to the message buffer. ``nLength`` is the length of the message buffer in bytes. Returns ``TRUE``, if the operation has been successful. This function fails, if the message format is invalid or the send function is not supported.
+	Sends one or more messages in plain MIDI message format. ``nCable`` is the number of the virtual MIDI cable (0..15). ``pData`` is a pointer to the message buffer. ``nLength`` is the length of the message buffer in bytes. The MIDI data is sent in ``nChunkSize`` number of bytes (multiple of 4), if this parameter is not 0. Returns ``TRUE``, if the operation has been successful. This function fails, if the message format is invalid or the send function is not supported.
 
 .. cpp:function:: void CUSBMIDIDevice::SetAllSoundOffOnUSBError (boolean bEnable)
 

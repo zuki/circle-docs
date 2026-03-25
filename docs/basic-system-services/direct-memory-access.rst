@@ -48,6 +48,10 @@ CDMAChannel
 * DREQSourceSPITX
 * DREQSourceUARTTX
 
+.. cpp:function:: void CDMAChannel::SetupCyclicIOWrite (uintptr ulIOAddress, const void *ppSources[], unsigned nBuffers, size_t ulLength, TDREQ DREQ)
+
+	Setup a cyclic DMA write transfer to the I/O port ``ulIOAddress`` (ARM-side or bus address) for ``nBuffers`` concatenated DMA buffers (max. 4) at ``ppSources`` (pointer to array of pointers) with length ``ulLength`` bytes per buffer. ``DREQ`` paces the transfer (see :cpp:func:`CDMAChannel::SetupIOWrite` for the possible devices). The transfer starts from first buffer again, when last buffer has been sent.
+
 .. cpp:function:: void CDMAChannel::SetupMemCopy2D (void *pDestination, const void *pSource, size_t nBlockLength, unsigned nBlockCount, size_t nBlockStride, unsigned nBurstLength = 0)
 
 	Setup a 2D DMA memory copy transfer of ``nBlockCount`` blocks of ``nBlockLength`` length from ``pSource`` to ``pDestination``. Skip ``nBlockStride`` bytes after each block on destination. Source is continuous. The destination cache, if any, is not touched. ``nBurstLength`` > 0 increases speed, but may congest the system bus. This method can be used to copy data to the framebuffer and is not supported with ``DMA_CHANNEL_LITE``.
@@ -56,11 +60,13 @@ CDMAChannel
 
 	割り込み操作用の DMA 完了ルーチンを設定します。転送が完了すると ``pRoutine`` が呼び出されます。 ``pParam`` は完了ルーチンに渡されるユーザパラメータです。 ``TDMACompletionRoutine`` は以下のプロトタイプを持ちます。
 
-.. code-block:: c++
+.. c:type:: void TDMACompletionRoutine (unsigned nChannel, unsigned nBuffer, boolean bStatus, void *pParam)
 
-	void TDMACompletionRoutine (unsigned nChannel, boolean bStatus, void *pParam);
+``nChannel`` はチャネル番号. ``nBuffer`` は循環バッファ（非周期的転送の場合は常に0）. ``bStatus`` 転送が成功裏に完了した場合 ``TRUE`` です。
 
-``nChannel`` はチャネル番号r. ``bStatus`` 転送が成功裏に完了した場合 ``TRUE`` です。
+.. note::
+
+	各非同期転送の前に ``SetCompletionRoutine()`` メソッドを呼び出す必要があります。転送完了後、完了ルーチンがリセットされるため、必要に応じて次の転送を同期転送として実行することができます。周期転送の場合、DMA割り込みが発生しても完了ルーチンはリセットされず、複数回呼び出されます。転送がキャンセルされた場合にのみ、完了ルーチンはリセットされます。
 
 .. cpp:function:: void CDMAChannel::Start (void)
 
@@ -84,7 +90,6 @@ CDMAChannelRP1
 .. cpp:class:: CDMAChannelRP1
 
 	このクラスはRaspberry Pi 5のRP1 DMAコントローラを制御します。通常、これはRP1サウスブリッジのペリフェラルとシステムメモリ間のデータ転送に使用されます。
-	This class controls the RP1 DMA controller of the Raspberry Pi 5, which is normally used to transfer data between peripherals in the RP1 southbridge and the system memory.
 
 .. cpp:function:: CDMAChannelRP1::CDMAChannelRP1 (unsigned nChannel, CInterruptSystem *pInterruptSystem)
 

@@ -13,6 +13,7 @@ Circleプロジェクトは集中型の単一C++ヘッダーファイルを提�
 	device-management
 	character-devices
 	block-devices
+	display-devices
 	audio-devices
 	network-devices
 	other-devices

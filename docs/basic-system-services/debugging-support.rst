@@ -1,7 +1,7 @@
 Debugging support
 ~~~~~~~~~~~~~~~~~
 
-Circle provides a number of classes, functions and macros, which support the debugging of applications. This section describes the tools, which can be included in a program itself. Debugging a Circle application with an external debugger is described in `doc/debug-jtag.txt <https://github.com/rsta2/circle/blob/master/doc/debug-jtag.txt>`_ and `doc/debug.txt <https://github.com/rsta2/circle/blob/master/doc/debug.txt>`_ in the Circle repository.
+Circle provides a number of classes, functions and macros, which support the debugging of applications. This section describes the tools, which can be included in a program itself. Debugging a Circle application with an external debugger is described in `doc/debug-jtag.txt <https://github.com/rsta2/circle/blob/master/doc/debug-jtag.txt>`_, `doc/debug-swd.txt <https://github.com/rsta2/circle/blob/master/doc/debug-swd.txt>`_ and `doc/debug.txt <https://github.com/rsta2/circle/blob/master/doc/debug.txt>`_ in the Circle repository.
 
 .. note::
 
@@ -27,27 +27,29 @@ Assertions are a common technique to insert runtime checks into the code. This i
 Functions
 ^^^^^^^^^
 
-The following functions are only available, when ``NDEBUG`` is not defined.
-
-.. code-block:: c
+.. code-block:: cpp
 
 	#include <circle/debug.h>
 
-.. c:function:: void debug_hexdump (const void *pStart, unsigned nBytes, const char *pSource = 0)
+.. c:function:: void DebugHexDump (const void *pStart, unsigned nBytes, const char *pSource = 0, unsigned nFlags = DEBUG_HEXDUMP_HEADER)
 
-	Writes a hexdump of ``nBytes``, starting at ``pStart`` to the :ref:`System log`. ``pSource`` is used as prefix of the log messages ("debug" if omitted).
+	Writes a hexdump of ``nBytes``, starting at ``pStart`` to the :ref:`System log`. ``pSource`` is used as prefix of the log messages ("debug" if omitted). ``nFlags`` is a combination of the following or'ed values:
 
-.. c:function:: void debug_stacktrace (const uintptr *pStackPtr, const char *pSource = 0)
+	* DEBUG_HEXDUMP_HEADER (show address and size header)
+	* DEBUG_HEXDUMP_ADDRESS (show address instead of offset)
+	* DEBUG_HEXDUMP_ASCII (include ASCII dump)
+
+.. c:function:: void DebugStackTrace (const uintptr *pStackPtr, const char *pSource = 0)
 
 	Writes a stack trace to the :ref:`System log`. This function tests 64 numbers starting at ``pStackPtr``, if they point into the program code and logs them in this case.
 
-.. c:function:: void debug_click (unsigned nMask = DEBUG_CLICK_ALL)
+.. c:function:: void DebugClick (unsigned nMask = DEBUG_CLICK_ALL)
 
 	This function can be used to debug events, which occur frequently, so that writing a log message would destroy the timing of the system. The function generates an audio click, which can be heard via the headphone jack of the Raspberry Pi. Frequent events generate a tone, very frequent events may generate a frequency, which is not hear-able. ``nMask`` can be ``DEBUG_CLICK_LEFT``, ``DEBUG_CLICK_RIGHT`` or ``DEBUG_CLICK_ALL`` and selects the audio channel to be used. On some Raspberry Pi models these channels may be swapped.
 
 .. note::
 
-	The macro ``DEBUG_CLICK`` must be defined, when you want to use ``debug_click()``. The PWM audio device cannot be used in this case.
+	The macro ``DEBUG_CLICK`` must be defined, when you want to use ``DebugClick()``. The PWM audio device cannot be used in this case.
 
 CExceptionHandler
 ^^^^^^^^^^^^^^^^^
