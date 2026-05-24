@@ -1,12 +1,12 @@
-Graphics
-~~~~~~~~
+グラフィックス
+~~~~~~~~~~~~~~
 
-Circle provides several options for implementing graphical user interfaces (GUI) and for generating pixel and vector graphics on an attached HDMI, composite TV display or external displays with SPI/I2C interface. These options are described in this section.
+Circleでは、グラフィカルユーザインターフェース（GUI）の実装や、接続されているHDMIやコンポジットテレビディスプレイ、SPI/I2Cインタフェースを備えた外部ディスプレイへのピクセルグラフィックスとベクターグラフィックスの出力を行ういくつかのオプションが用意されています。これらのオプションについてこのセクションで説明します。
 
 C2DGraphics
 ^^^^^^^^^^^
 
-The class ``C2DGraphics`` is part of the Circle base library and can be used to generate pixel graphics on a dot-matrix display, which is provided by the class :cpp:class:`CDisplay`.
+``C2DGraphics`` クラスはCircleの基本ライブラリの一部であり、  :cpp:class:`CDisplay` クラスにより提供されるドットマトリクスディスプレイ上のピクセルグラフィックスを生成するために使用できます。
 
 .. code-block:: cpp
 
@@ -14,7 +14,7 @@ The class ``C2DGraphics`` is part of the Circle base library and can be used to 
 
 .. cpp:class:: C2DGraphics
 
-	This class is a software graphics library with VSync and hardware-accelerated double buffering.
+	このクラスはVSyncとハードウェアアクセラレーションによるダブルバッファリング機能を備えたソフトウェアグラフィックスライブラリです。
 
 .. note::
 
@@ -34,7 +34,7 @@ The class ``C2DGraphics`` is part of the Circle base library and can be used to 
 
 .. note::
 
-	There is no VSync support with this constructor.
+	このコンストラクタではVSyncはサポートされていません。
 
 .. cpp:function:: C2DGraphics::C2DGraphics (unsigned nWidth, unsigned nHeight, boolean bVSync = TRUE, unsigned nDisplay = 0)
 
@@ -128,7 +128,7 @@ The class ``C2DGraphics`` is part of the Circle base library and can be used to 
 
 .. cpp:class:: C2DImage
 
-	This is a sprite image to be displayed on a :cpp:class:`C2DGraphics` instance.
+	:cpp:class:`C2DGraphics` インスタンス上に表示されるスプライト画像です。
 
 .. cpp:function:: C2DImage::C2DImage (C2DGraphics *p2DGraphics)
 
@@ -155,7 +155,7 @@ The class ``C2DGraphics`` is part of the Circle base library and can be used to 
 LVGL
 ^^^^
 
-The `Light and Versatile Graphics Library <https://lvgl.io/>`_ (LVGL) v9.4.0 can be used with Circle. This library provides an API, which is based on the C language. See the `LVGL documentation <https://docs.lvgl.io/9.4/>`_ for details.
+Circleでは `Light and Versatile Graphics Library <https://lvgl.io/>`_ (LVGL) v9.4.0 が利用できます。このライブラリはC言語ベースのAPIを提供しています。詳細については `LVGLのドキュメント <https://docs.lvgl.io/9.4/>`_ を参照してください。
 
 .. code-block:: cpp
 
@@ -163,7 +163,7 @@ The `Light and Versatile Graphics Library <https://lvgl.io/>`_ (LVGL) v9.4.0 can
 
 .. cpp:class:: CLVGL
 
-	This class is a wrapper for LVGL and has to be instantiated to use this graphics library. The wrapper class supports USB mouse or touchscreen input.
+	このクラスはLVGLのラッパーであり、このグラフィックスライブラリを使用するにはインスタンス化する必要があります。このラッパークラスはUSBマウスとタッチスクリーン入力をサポートしています。
 
 .. cpp:function:: CLVGL::CLVGL (CScreenDevice *pScreen)
 .. cpp:function:: CLVGL::CLVGL (CDisplay *pDisplay)
@@ -178,14 +178,14 @@ The `Light and Versatile Graphics Library <https://lvgl.io/>`_ (LVGL) v9.4.0 can
 
 	Updates the display. This has to be called continuously from the application main loop at ``TASK_LEVEL``. ``bPlugAndPlayUpdated`` must be set to ``TRUE``, if the application supports USB plug-and-play and :cpp:func:`CUSBHostController::UpdatePlugAndPlay()` returned ``TRUE`` too.
 
-�GUI
+μGUI
 ^^^^
 
-The `�GUI library <http://embeddedlightning.com/ugui/>`_ can be used with Circle. This library provides an API, which is based on the C language. Download the `Reference Guide <http://embeddedlightning.com/download/reference-guide/>`_ for details.
+Circleでは `μGUIライブラリ <http://embeddedlightning.com/ugui/>`_ を利用できます。このライブラリはC言語をベースとしたAPIを提供しています。詳細については `リファレンスガイド <http://embeddedlightning.com/download/reference-guide/>`_ をダウンロードしてください。
 
 .. note::
 
-	This library is currently not supported on the Raspberry Pi 5.
+	このライブラリは現在のところRaspberry Pi 5ではサポートされていません。
 
 .. code-block:: cpp
 
@@ -193,7 +193,7 @@ The `�GUI library <http://embeddedlightning.com/ugui/>`_ can be used with Circle
 
 .. cpp:class:: CUGUI
 
-	This class is a wrapper for �GUI and has to be instantiated to use this graphics library. The wrapper class supports USB mouse or touchscreen input.
+	このクラスはμGUIのラッパークラスであり、このグラフィックスライブラリを使用するにはインスタンス化する必要があります。このラッパークラスは、USBマウスとタッチスクリーン入力をサポートしています。
 
 .. cpp:function:: CUGUI::CUGUI (CScreenDevice *pScreen)
 
@@ -201,7 +201,7 @@ The `�GUI library <http://embeddedlightning.com/ugui/>`_ can be used with Circle
 
 .. cpp:function:: boolean CUGUI::Initialize (void)
 
-	Initializes to �GUI support. Returns ``TRUE`` on success.
+	Initializes to μGUI support. Returns ``TRUE`` on success.
 
 .. cpp:function:: void CUGUI::Update (boolean bPlugAndPlayUpdated = FALSE)
 

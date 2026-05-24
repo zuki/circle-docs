@@ -1,17 +1,17 @@
 .. _Audio devices:
 
-Audio devices
-~~~~~~~~~~~~~
+オーディオデバイス
+~~~~~~~~~~~~~~~~~~~~
 
-Circle supports the generation of sound via several hardware (PWM, I2S, HDMI, USB) and software (VCHIQ) interfaces. It allows to capture sound data via the I2S hardware interface and via USB audio streaming devices. Furthermore it is able to exchange MIDI data via USB and via a serial interface (UART). The latter has to be implemented in the application using the class :cpp:class:`CSerialDevice`.
+Circleは複数のハードウェアインタフェース（PWM、I2S、HDMI、USB）とソフトウェアインタフェース（VCHIQ）を介したサウンド生成をサポートしています。I2SハードウェアインタフェースやUSBオーディオストリーミングデバイスを介したサウンドデータの取得も可能です。さらに、USBとシリアルインタフェース（UART）を介したMIDIデータの送受信も行うことができます。後者については :cpp:class:`CSerialDevice` を使ってアプリケーションで実装する必要があります。
 
 .. important::
 
-	The support for USB audio streaming devices is only available on the Raspberry Pi 4, 400, 5 and Compute Module 4.
+	USBオーディオストリーミングデバイスのサポートはRaspberry Pi 4、400、5、Compute Module 4でしか利用できません。
 
-	The support for HDMI and VCHIQ audio interfaces is currently not available on the Raspberry Pi 5.
+	HDMIとVCHIQオーディオインタフェースのサポートは現在のところ、Raspberry Pi 5では利用できません。
 
-The base class of all sound generating and capturing devices is ``CSoundBaseDevice``. The following table lists the provided classes for the different interfaces. The higher level support provides an additional conversion function for sound data in different formats as an example, which can be easily adapted for other sound classes.
+すべてのサウンド生成およびキャプチャデバイスの基底クラスは ``CSoundBaseDevice`` です。以下の表に様々なインタフェース用に用意されているクラスを示します。高レベルサポートではさらに例として様々なフォーマットのサウンドデータの変換関数が提供されており、これは他のサウンドクラスにも容易に適用できます。
 
 ==============	======================	======================	====================
 Interface	Connector		Low level support	Higher level support
@@ -27,16 +27,16 @@ VCHIQ		HDMI or headphone jack	CVCHIQSoundBaseDevice	CVCHIQSoundDevice
 
 	The class ``CUSBSoundBaseDevice`` depends on more lower level drivers (e.g. class ``CUSBAudioStreamingDevice``) in the USB library, which are normally not accessed directly by an application. Technical details of the USB audio streaming architecture are described in the file *lib/usb/usbaudiostreaming.cpp*.
 
-Several sample programs demonstrate functions of the different audio devices:
+いくつかのサンプルプログラムでさまざまなオーディオデバイスの機能を紹介しています。
 
-* sample/12-pwmsound (playback a short sound sample using the PWM sound device)
-* sample/29-miniorgan (using the PWM, HDMI, I2S or USB sound device, USB or serial MIDI, using sound controller to modify volume)
-* sample/34-sounddevices (integrating multiple sound devices in one application)
-* sample/42-soundinput (I2S or USB to PWM sound data converter and recorder)
-* addon/vc4/sound/sample (HDMI or PWM sound support via VCHIQ interface)
-* test/sound-controller (set controls of a sound controller of several sound devices)
+* sample/12-pwmsound （PWMサウンドデバイスを使用して短いサウンドサンプルを再生）
+* sample/29-miniorgan （PWM、HDMI、I2S、USBサウンドデバイス、USBまたはシリアルMIDIを使用し、サウンドコントローラで音量を調整）
+* sample/34-sounddevices （1つのアプリケーションに複数のサウンドデバイスを統合）
+* sample/42-soundinput (I2SまたはUSBからPWMサウンドデータへの変換および録音)
+* addon/vc4/sound/sample (VCHIQインタフェースによるHDMIまたはPWMサウンドのサポート)
+* test/sound-controller (複数のサウンドデバイスのサウンドコントローラの制御設定)
 
-The separate project `MiniSynth Pi <https://github.com/rsta2/minisynth>`_ is a more extensive example for an application, which generates sound via the PWM, I2S or USB interfaces in a multi-core environment, controlled with an USB or serial MIDI stream.
+別のプロジェクトである `MiniSynth Pi <https://github.com/rsta2/minisynth>`_ はマルチコア環境においてPWM、I2S、USBの各インタフェースを介してサウンドを生成し、USBまたはシリアルMIDIストリームで制御するアプリケーションのより詳細な例です。
 
 CSoundBaseDevice
 ^^^^^^^^^^^^^^^^
@@ -47,171 +47,170 @@ CSoundBaseDevice
 
 .. cpp:class:: CSoundBaseDevice : public CDevice
 
-	This class is the base for all sound generating and capturing classes in Circle. Normally it is not used directly in applications, but instead the derived class for the used interface is instantiated. Because this base class defines the common interface for all sound classes, it is described here first.
+	このクラスはCircleにおけるすべてのサウンド生成、サウンドキャプチャクラスの基底クラスです。通常、アプリケーションではこのクラスを直接使用するのではなく、使用するインターフェースに対応する派生クラスをインスタンス化して使用します。この基底クラスはすべてのサウンドクラスに共通するインタフェースを定義しているため、ここで最初に説明します。
 
-	This class provides methods to start and stop the sound output and input, and to setup and manipulate one sound queue for each direction. Applications can use these queue(s) to provide/retrieve sound data with ``Write()`` and/or ``Read()``. Alternatively they can override the methods ``GetChunk()`` and/or ``PutChunk()`` to directly write/read the audio samples to/from a provided DMA buffer.
+	このクラスはサウンドの出力と入力を開始・停止するためのメソッド、各方向ごとに1つあるサウンドキューを設定・操作するためのメソッドを提供します。アプリケーションはこれらのキューを使用して ``Write()``, ``Read()`` メソッドでサウンドデータを提供・取得することができます。あるいは、 ``GetChunk()``, ``PutChunk()`` メソッドをオーバーライドすることで指定したDMAバッファに対してオーディオサンプルを直接書き込み・読み取りを行うことも可能です。
 
 .. important::
 
-	In a multi-core environment all methods, except if otherwise noted, have to be called or will be called (for callbacks) on CPU core 0.
+	マルチコア環境では、特に断りがない限り、すべてのメソッドはCPUコア0で呼び出されるか、（コールバックの場合は）CPUコア0で呼び出されることになります。
 
-Device information
+デバイス情報
 """"""""""""""""""
 
 .. cpp:function:: unsigned CSoundBaseDevice::GetHWTXChannels (void) const
 
-	Returns the number of hardware output channels. This method can be called on any CPU core.
+	ハードウェア出力チャネルの数を返します。このメソッドは、任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: unsigned CSoundBaseDevice::GetHWRXChannels (void) const
 
-	Returns the number of hardware input channels. This method can be called on any CPU core.
+	ハードウェア入力チャネルの数を返します。このメソッドは、任意のCPUコアから呼び出すことができます。
 
-Device activation
-"""""""""""""""""
+デバイスのアクティベーション
+"""""""""""""""""""""""""""""
 
 .. cpp:function:: virtual boolean CSoundBaseDevice::Start (void)
 
-	Starts the transmission of sound data and initializes the device at the first call. Returns ``TRUE``, if the operation was successful?
+	サウンドデータの送信を開始します。最初の呼び出し時にはデバイスを初期化します。操作が成功した場合、 ``TRUE`` を返します。
 
 .. cpp:function:: virtual void CSoundBaseDevice::Cancel (void)
 
-	Cancels the transmission of sound data. Cancel takes effect after a short delay.
+	サウンドデータの送信を中止します。中止は少し遅れて有効になります。
 
 .. cpp:function:: virtual boolean CSoundBaseDevice::IsActive (void) const
 
-	Returns ``TRUE``, if sound data transmission is currently running? This method can be called on any CPU core.
+	現在、サウンドデータの送信が実行されている場合、 ``TRUE`` を返します。このメソッドは任意のCPUコアから呼び出すことができます。
 
-Output queue
+出力キュー
 """"""""""""
 
-These methods are used to output sound using a write queue. They are not used, if ``GetChunk()`` is overwritten instead.
+以下のメソッドは書き込みキューを使ったサウンドの出力に使用されます。 ``GetChunk()`` がオーバライドされている場合はこれらは使用されません。
 
 .. cpp:function:: boolean CSoundBaseDevice::AllocateQueue (unsigned nSizeMsecs)
 
-	Allocates the queue used for ``Write()``. ``nSizeMsecs`` is the size of the queue in milliseconds duration of the stream.
+	``Write()`` で使用されるキューを割り当てます。 ``nSizeMsecs`` はストリームのミリ秒単位の継続時間で表したキューのサイズです。
 
 .. cpp:function:: boolean CSoundBaseDevice::AllocateQueueFrames (unsigned nSizeFrames)
 
-	Allocates the queue used for ``Write()``. ``nSizeFrames`` is the size of the queue in number of audio frames.
+	``Write()`` で使用されるキューを割り当てます。 ``nSizeFrames`` はオーディオフレーム数で表したキューのサイズです。
 
 .. cpp:function:: void CSoundBaseDevice::SetWriteFormat (TSoundFormat Format, unsigned nChannels = 2)
 
-	Sets the format of sound data provided to ``Write()`` to ``Format``. ``nChannels`` is the number of logical channels and can be 1 to 32. If an audio device supports more hardware channels than the given value, the remaining channels will send null level. If an audio device supports less hardware channels than the given value, the remaining written audio samples will be ignored. The following (interleaved little endian) write formats are allowed:
+	``Write()`` に渡されるサウンドデータのフォーマットを ``Format`` に設定します。 ``nChannels`` は論理チャンネルの数であり、1 から 32 までの値を指定できます。オーディオデバイスが指定された値よりも多くのハードウェアチャンネルをサポートしている場合、残りのチャンネルにはヌルレベルが送信されます。オーディオデバイスが指定された値よりも少ないハードウェアチャンネルしかサポートしていない場合、書き込まれた残りのサウンドサンプルは無視されます。以下の（インターリーブされたリトルエンディアン形式の）書き込みフォーマットが使用可能です。
 
 	* SoundFormatUnsigned8
 	* SoundFormatSigned16
-	* SoundFormatSigned24 (occupies 3 bytes)
-	* SoundFormatSigned24_32 (occupies 4 bytes)
+	* SoundFormatSigned24 (3バイトを占める)
+	* SoundFormatSigned24_32 (4バイトを占める)
 
 .. cpp:function:: int CSoundBaseDevice::Write (const void *pBuffer, size_t nCount)
 
-	Appends audio samples from ``pBuffer`` to the output queue. ``nCount`` is the size of the buffer in bytes and must be a multiple of the frame size. Returns the number of bytes from the buffer, which have to be consumed successfully. This value may be smaller than ``nCount``, in which case some frames have been ignored. This method can be called on any CPU core.
+	``pBuffer`` にあるオーディオサンプルを出力キューに追加します。 ``nCount`` はバイト単位のバッファサイズであり、フレームサイズの倍数でなければなりません。バッファから読み込まれ、正常に処理されたバイト数を返します。この値は ``nCount`` より小さくなる場合があります。その場合は一部のフレームが無視されたことになります。このメソッドは任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: unsigned CSoundBaseDevice::GetQueueSizeFrames (void)
 
-	Returns the output queue size in number of frames. This method can be called on any CPU core.
+	出力キューのサイズをフレーム数で返します。このメソッドは任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: unsigned CSoundBaseDevice::GetQueueFramesAvail (void)
 
-	Returns the number of frames currently available in the output queue, which are waiting to be sent to the hardware interface. This method can be called on any CPU core.
+	出力キューの現在利用可能であり、ハードウェアインタフェースへの送信を待機しているフレームの数を返します。このメソッドは任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: void CSoundBaseDevice::RegisterNeedDataCallback (TSoundDataCallback *pCallback, void *pParam)
 
-	Registers the callback function ``pCallback``, which is called, when more sound data is needed, which means that at least half of the queue is empty. ``pParam`` is a user parameter to be handed over to the callback. The callback function has the following prototype:
+	コールバック関数 ``pCallback`` を登録します。この関数はさらなるサウンドデータが必要になったとき、すなわち、キューの少なくとも半分が空になったときに呼び出されます。 ``pParam`` はコールバックに渡されるユーザパラメータです。コールバック関数のプロトタイプは以下の通りです。
 
 .. c:type:: void TSoundDataCallback (void *pParam)
 
-	``pParam`` is the user parameter, which has been handed over to ``RegisterNeedDataCallback()``.
+	``pParam`` はユーザバラメタで ``RegisterNeedDataCallback()`` に渡されます。.
 
-Input queue
+入力キュー
 """""""""""
 
-These methods are used to input sound data using a read queue. They are not used, if ``PutChunk()`` is overwritten instead.
+以下のメソッドは読み取りキューを使ったサウンドデータの入力に使用されます。 ``PutChunk()`` がオーバライドさている場合はこれらは使用されません。
 
 .. cpp:function:: boolean CSoundBaseDevice::AllocateReadQueue (unsigned nSizeMsecs)
 
-	Allocates the queue used for ``Read()``. ``nSizeMsecs`` is the size of the queue in milliseconds duration of the stream.
+	``Read()`` で使用されるキューを割り当てます。 ``nSizeMsecs`` はストリームのミリ秒単位の継続時間で表したキューのサイズです。
 
 .. cpp:function:: boolean CSoundBaseDevice::AllocateReadQueueFrames (unsigned nSizeFrames)
 
-	Allocates the queue used for ``Read()``. ``nSizeFrames`` is the size of the queue in number of audio frames.
+	``Read()`` で使用されるキューを割り当てます。 ``nSizeFrames`` はオーディオフレーム数で表したキューのサイズです。
 
 .. cpp:function:: void CSoundBaseDevice::SetReadFormat (TSoundFormat Format, unsigned nChannels = 2, boolean bLeftChannel = TRUE)
 
-	Sets the format of sound data returned from ``Read()`` to ``Format``. ``nChannels`` is the number of logical channels and can be 1 to 32. If an audio device supports more hardware channels than the given value, the remaining channels will be ignored. If an audio device supports less hardware channels than the given value, the remaining read audio samples will return null level. If ``bLeftChannel`` is ``TRUE``, ``Read()`` returns the left channel, if ``nChannels == 1``. The following (interleaved little endian) read formats are allowed:
+	``Read()`` に渡されるサウンドデータのフォーマットを ``Format`` に設定します。 ``nChannels`` は論理チャンネルの数であり、1 から 32 までの値を指定できます。オーディオデバイスが指定された値よりも多くのハードウェアチャンネルをサポートしている場合、残りのチャンネルは無視されます。オーディオデバイスが指定された値よりも少ないハードウェアチャンネルしかサポートしていない場合、残りのreadサウンドサンプルはヌルレベルを返します。 ``bLeftChannel`` が ``TRUE`` の場合、 ``nChannels == 1`` であれば、 ``Read()`` は左チャンネルを返します。以下の（インターリーブされたリトルエンディアン形式の）読み取り形式が使用可能です。
 
 	* SoundFormatUnsigned8
 	* SoundFormatSigned16
-	* SoundFormatSigned24 (occupies 3 bytes)
-	* SoundFormatSigned24_32 (occupies 4 bytes)
+	* SoundFormatSigned24 (3バイトを占める)
+	* SoundFormatSigned24_32 (4バイトを占める)
 
 .. cpp:function:: int CSoundBaseDevice::Read (void *pBuffer, size_t nCount)
 
-	Moves up to ``nCount`` bytes of audio samples into ``pBuffer`` from the input queue and returns the number of returned bytes, which is a multiple of the frame size in any case, or 0 if no data is available. ``nCount`` must be a multiple of the frame size. This method can be called on any CPU core.
+	入力キューから最大 ``nCount`` バイトのオーディオサンプルを ``pBuffer`` に転送し、転送されたバイト数を返します。この値は常にフレームサイズの倍数となりますが、データがなかった場合は 0 を返します。 ``nCount`` はフレームサイズの倍数でなければなりません。このメソッドは任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: unsigned CSoundBaseDevice::GetReadQueueSizeFrames (void)
 
-	Returns the input queue size in number of frames. This method can be called on any CPU core.
+	入力キューのサイズをフレーム数で返します。このメソッドは任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: unsigned CSoundBaseDevice::GetReadQueueFramesAvail (void)
 
-	Returns the number of frames currently available in the input queue, which are waiting to be read by the application. This method can be called on any CPU core.
+	入力キューにある現在利用可能であり、アプリケーションによる読み取りを待機しているフレームの数を返します。このメソッドは任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: void CSoundBaseDevice::RegisterHaveDataCallback (TSoundDataCallback *pCallback, void *pParam)
 
-	Registers the callback function ``pCallback``, which is called, when enough sound data is available for ``Read()``, which means that at least half of the queue is full. ``pParam`` is a user parameter to be handed over to the callback. The callback function has this prototype: :c:func:`TSoundDataCallback`.
+	コールバック関数 ``pCallback`` を登録します。この関数は ``Read()`` を実行するのに十分なサウンドデータが利用可能になったとき、すなわち、キューの少なくとも半分が埋まったときに呼び出されます。 ``pParam`` はコールバックに渡されるユーザパラメータです。このコールバック関数のプロトタイプは :c:func:`TSoundDataCallback` です。
 
-Alternate interface
+代替インタフェース
 """""""""""""""""""
 
-Optionally an application can bypass the output and/or input queues and can directly provide/consume the audio samples to/from a buffer, which is handed over to the callback methods ``GetChunk()`` and/or ``PutChunk()``. This/These method(s) have to be overwritten to use the alternate interface. The format of the samples depends on the used hardware/software interface:
+アプリケーションは必要に応じて出力キューや入力キューをバイパスして、直接、バッファからオーディオサンプルを提供したり、バッファへオーディオサンプルを格納したりすることができます。このバッファは、コールバックメソッドである ``GetChunk()``, ``PutChunk()`` に渡されます。この代替インタフェースを使用するにはこれらのメソッドをオーバーライドする必要があります。サンプルのフォーマットは使用されるハードウェア/ソフトウェアインタフェースによって異なります。
 
-==============	======================	====================================================
-Interface	Format			Remarks
-==============	======================	====================================================
-PWM		SoundFormatUnsigned32	range max. depends on sample rate and PWM clock rate
-I2S		SoundFormatSigned24_32	occupies 4 bytes
-HDMI		SoundFormatIEC958	special frame format (S/PDIF)
-USB		SoundFormatSigned16 or
-		SoundFormatSigned24
-VCHIQ		SoundFormatSigned16	occupies 4 bytes
-==============	======================	====================================================
+==============  ==============================================  ====================================================
+インタフェース    フォーマット               備考
+==============  ==============================================  ====================================================
+PWM             SoundFormatUnsigned32                           Range MaxはサンプリングレートとPWMクロックレートによる
+I2S             SoundFormatSigned24_32                          4バイトを占める
+HDMI            SoundFormatIEC958                               特別なフレームフォーマット (S/PDIF)
+USB             SoundFormatSigned16 または SoundFormatSigned24
+VCHIQ           SoundFormatSigned16                             4バイトを占める
+==============	==============================================  ====================================================
 
 .. cpp:function:: virtual int CSoundBaseDevice::GetRangeMin (void) const
 .. cpp:function:: virtual int CSoundBaseDevice::GetRangeMax (void) const
 
-	Return the minimum/maximum value of one sample. These methods can be called on any CPU core.
+	1サンプルの最小値/最大値を返します。これらのメソッドは任意のCPUコアから呼び出すことができます。
 
 .. cpp:function:: boolean CSoundBaseDevice::AreChannelsSwapped (void) const
 
-	Returns ``TRUE``, if the application has to write the right channel first into buffer in ``GetChunk()``.
+	アプリケーションが ``GetChunk()`` で右チャンネルを先にバッファに書き込む必要がある場合、 ``TRUE`` を返します。
 
 .. cpp:function:: virtual unsigned CSoundBaseDevice::GetChunk (s16 *pBuffer, unsigned nChunkSize)
 .. cpp:function:: virtual unsigned CSoundBaseDevice::GetChunk (u32 *pBuffer, unsigned nChunkSize)
 
-	You may override one of these methods to provide the sound samples. The first method is used for the VCHIQ interface and the USB interface, the second for all other interfaces (including USB for 24-bit resolution, each sample occupies 3 bytes here). ``pBuffer`` is a pointer to the buffer, where the samples have to be placed. ``nChunkSize`` is the size of the buffer in words. Returns the number of words written to the buffer, which is normally ``nChunkSize``, or 0 to stop the transfer. Each sample consists of ``GetHWTXChannels()`` words, where each word must be between ``GetRangeMin()`` and ``GetRangeMax()``. The HDMI interface requires a special frame format here, which can be applied using ``ConvertIEC958Sample()``.
+	これらのメソッドのいずれかをオーバーライドして、サウンドサンプルを提供することができます。最初のメソッドはVCHIQインタフェースとUSBインタフェースで使用され、2番目のメソッドはその他のすべてのインタフェース（各サンプルが3バイトを占める24ビット解像度のUSBを含む）で使用されます。 ``pBuffer`` はサンプルを格納するバッファへのポインタです。 ``nChunkSize`` はワード単位のバッファサイズです。バッファに書き込まれたワード数を返します。この値は通常 ``nChunkSize`` ですが、転送を停止する場合は 0 を返します。各サンプルは ``GetHWTXChannels()`` 個のワードで構成されます。各ワードは ``GetRangeMin()`` から ``GetRangeMax()`` の範囲である必要があります。HDMI インタフェースではここで特別なフレーム形式が必要となり ``ConvertIEC958Sample()`` を使用して適用できます。
 
 .. cpp:function:: virtual void CSoundBaseDevice::PutChunk (const s16 *pBuffer, unsigned nChunkSize)
 .. cpp:function:: virtual void CSoundBaseDevice::PutChunk (const u32 *pBuffer, unsigned nChunkSize)
 
-	You may override this method to consume the received sound samples. The first method is used for the USB interface, the second for I2S (or USB for 24-bit resolution, each sample occupies 3 bytes here). ``pBuffer`` is a pointer to the buffer, where the samples have been placed. ``nChunkSize`` is the size of the buffer in words. Each sample consists of ``GetHWRXChannels()`` words.
+	これらのメソッドをオーバーライドして、受信したサウンドサンプルを処理することができます。最初のメソッドはUSBインタフェース用であり、2番目のメソッドはI2S（または、各サンプルが3バイトを占める24ビット解像度の場合はUSB）用です。 ``pBuffer`` はサンプルが格納されているバッファへのポインタです。 ``nChunkSize`` はワード単位のバッファサイズです。各サンプルは ``GetHWRXChannels()`` 個のワードで構成されます。
 
 .. cpp:function:: u32 CSoundBaseDevice::ConvertIEC958Sample (u32 nSample, unsigned nFrame)
 
-	This method can be called from ``GetChunk()`` to apply the framing on IEC958 (S/PDIF) samples. ``nSample`` is a 24-bit signed sample value as ``u32``, where upper bits don't care. ``nFrame`` is the number of the IEC958 frame, this sample belongs to (0..191).
+	このメソッドは ``GetChunk()`` から呼び出して、IEC958 (S/PDIF) 形式のサンプルにフレーミングを適用することができます。 ``nSample`` は ``u32`` 型の 24ビット符号付きサンプル値であり、上位ビットは無視されます。 ``nFrame`` はIEC958フレームの数であり、 (0..191) の間の数です。
 
 .. _Sound controller:
 
-Sound controller
-""""""""""""""""
+サウンドコントローラ
+""""""""""""""""""""
 
-A sound device can optionally provide a sound controller, which offers the following functions:
+サウンドデバイスはオプションでサウンドコントローラを提供することができ、以下の機能を提供します。
 
-* Return information about the output and input properties of the device.
-* Enable a specific jack of sound devices with multiple connectors or connector configurations.
-* Disable a specific jack (with multi-jack operation only).
-* Return information about audio controls (e.g. volume), which influence the output or input of sound.
-* Set a specific value of an audio control (e.g. mute off/on).
+* デバイスの出力/入力のプロパティに関する情報を返します。
+* 複数のコネクタやコネクタ構成を持つサウンドデバイスにおいて、特定のジャックを有効にします。
+* 特定のジャックを無効にします（マルチジャック操作のみ）。
+* サウンドの出力/入力に影響を与えるオーディオコントロール（音量など）に関する情報を返す。
+* オーディオコントロールの特定の値を設定する（ミュートのオン/オフなど）。
 
 .. cpp:function:: virtual CSoundController *CSoundBaseDevice::GetController (void)
 
@@ -311,15 +310,15 @@ CPWMSoundBaseDevice
 
 .. cpp:class:: CPWMSoundBaseDevice : public CSoundBaseDevice
 
-	This class is a driver for the PWM sound interface. The generated sound is available via the 3.5" headphone jack, provided by most Raspberry Pi models. Most of the methods, available for using this class, are provided by the base class :cpp:class:`CSoundBaseDevice`. Only the constructor is specific to this class. This device has the name ``"sndpwm"`` in the device name service (character device).
+	このクラスはPWMサウンドインタフェース用のドライバです。生成されたサウンドはほとんどのRaspberry Piモデルに搭載されている3.5mmヘッドフォンジャックから出力されます。このクラスで使用可能なメソッドのほとんどは基底クラスである :cpp:class:`CSoundBaseDevice` によって提供されています。このクラス固有のメソッドはコンストラクタだけです。このデバイスはデバイス名サービス（キャラクタデバイス）において ``"sndpwm"`` という名前で登録されています。
 
 .. note::
 
-	On the Raspberry Pi 5 or Zero, which do not have a headphone jack, the output from the PWM sound interface can be used via the GPIO header. You need an external interface `like this <https://learn.adafruit.com/adding-basic-audio-ouput-to-raspberry-pi-zero>`_, normally connected to GPIO12/13. You have to define the system option ``USE_PWM_AUDIO_ON_ZERO`` for this purpose for the Raspberry Pi Zero. See the file `include/circle/sysconfig.h <https://github.com/rsta2/circle/blob/master/include/circle/sysconfig.h>`_ for details!
+	ヘッドフォンジャックを搭載していないRaspberry Pi 5とZeroでは、GPIOヘッダーを介してPWMサウンドインタフェースからの出力を利用できます。これには通常、GPIO12/13に接続する `このような <https://learn.adafruit.com/adding-basic-audio-ouput-to-raspberry-pi-zero>`_ 外部インターフェースが必要です。Raspberry Pi Zeroでこれを行うにはシステムオプション ``USE_PWM_AUDIO_ON_ZERO`` を定義する必要があります。詳細については `include/circle/sysconfig.h <https://github.com/rsta2/circle/blob/master/include/circle/sysconfig.h>`_ ファイルを参照してください。
 
 .. cpp:function:: CPWMSoundBaseDevice::CPWMSoundBaseDevice (CInterruptSystem *pInterrupt, unsigned nSampleRate = 44100, unsigned nChunkSize = 2048)
 
-	Constructs an instance of this class. There can be only one. ``pInterrupt`` is a pointer to the interrupt system object. ``nSampleRate`` is the sample rate in Hz. ``nChunkSize`` is twice the number of samples (words) to be handled with one call to ``GetChunk()`` (one word per stereo channel). Decreasing this value also decreases the latency on this interface, but increases the IRQ load on CPU core 0.
+	このクラスのインスタンスを作成します。インスタンスは1つしか存在できません。 ``pInterrupt`` は割り込みシステムオブジェクトへのポインタです。 ``nSampleRate`` はHz単位のサンプルレートです。 ``nChunkSize`` は ``GetChunk()`` を1回呼び出すごとに処理されるサンプル数（ワード数）の2倍です（ステレオチャンネルごとに1ワード）。この値を小さくすると、このインタフェースのレイテンシは減少しますが、CPUコア0へのIRQ負荷が増加します。
 
 CPWMSoundDevice
 ^^^^^^^^^^^^^^^
@@ -330,23 +329,23 @@ CPWMSoundDevice
 
 .. cpp:class:: CPWMSoundDevice : public CPWMSoundBaseDevice
 
-	This class is a PWM playback device for sound data, which is available in main memory. It extents the class :cpp:class:`CPWMSoundBaseDevice`, but has its own interface. The sample rate is fixed at 44100 Hz.
+	このクラスはメインメモリ上に存在するサウンドデータを再生するためのPWM再生デバイスです。 :cpp:class:`CPWMSoundBaseDevice` クラスを継承していますが、独自のインターフェースを持っています。サンプリングレートは44100 Hzに固定されています。
 
 .. cpp:function:: CPWMSoundDevice::CPWMSoundDevice (CInterruptSystem *pInterrupt)
 
-	Constructs an instance of this class. There can be only one. ``pInterrupt`` is a pointer to the interrupt system object.
+	このクラスのインスタンスを作成します。インスタンスは1つしか存在できません。 ``pInterrupt`` は割り込みシステムオブジェクトへのポインタです。
 
 .. cpp:function:: void CPWMSoundDevice::Playback (void *pSoundData, unsigned nSamples, unsigned nChannels, unsigned  nBitsPerSample)
 
-	Starts playback of the sound data at ``pSoundData`` via the PWM sound device. ``nSamples`` is the number of samples, where for Stereo the L/R samples are count as one. ``nChannels`` is 1  for Mono or 2  for Stereo. ``nBitsPerSample`` is 8 (unsigned char sound data) or 16 (signed short sound data).
+	PWMサウンドデバイスを使用して、 ``pSoundData`` のサウンドデータの再生を開始します。 ``nSamples`` はサンプル数であり、ステレオの場合、L/Rサンプルが1つとしてカウントされます。 ``nChannels`` はモノラルなら1、ステレオなら2です。 ``nBitsPerSample`` は 8（unsigned char形式のサウンドデータ）か 16（signed short形式のサウンドデータ）です。
 
 .. cpp:function:: boolean CPWMSoundDevice::PlaybackActive (void) const
 
-	Returns ``TRUE``, while the playback is active.
+	再生中の場合は ``TRUE`` を返します。
 
 .. cpp:function:: void CPWMSoundDevice::CancelPlayback (void)
 
-	Cancels the playback. The operation takes affect with a short delay, after which ``PlaybackActive()`` returns ``FALSE``.
+	再生を中止します。この操作はわずかな遅延を経て有効になり、その後、 ``PlaybackActive()`` は  ``FALSE`` を返します。
 
 CI2SSoundBaseDevice
 ^^^^^^^^^^^^^^^^^^^
@@ -457,42 +456,42 @@ CHDMISoundBaseDevice
 
 .. cpp:class:: CHDMISoundBaseDevice : public CSoundBaseDevice
 
-	This class is a driver for HDMI displays with audio support. It directly accesses the hardware and does not require :ref:`Multitasking` support and the :ref:`VCHIQ driver` in the system. Most of the methods, available for using this class, are provided by the base class :cpp:class:`CSoundBaseDevice`. This device has the name ``"sndhdmi"`` in the device name service (character device).
+	このクラスはオーディオ対応のHDMIディスプレイ用のドライバです。ハードウェアに直接アクセスするため、 :ref:`Multitasking` のサポートやシステムに  :ref:`VCHIQ driver` を必要としません。このクラスで使用可能なメソッドのほとんどは基底クラスである :cpp:class:`CSoundBaseDevice` で提供されています。このデバイスはデバイス名サービス（キャラクタデバイス）において ``"sndhdmi"`` という名前で登録されています。
 
 .. note::
 
-	This driver supports only two channels (Stereo).
+	このドライバは2チャンネル（ステレオ）しかサポートしていません。
 
-	This driver does not support HDMI1 on the Raspberry Pi 4, 5 and 400 (HDMI0 only).
+	このドライバはRaspberry Pi 4、5、400のHDMI1はサポートしていません（HDMI0のみです）。
 
-	This driver supports a DMA and a polling mode. The latter is intended for very time critical and cache-sensitive applications, which cannot use interrupts.
+	このドライバはDMAモードとポーリングモードをサポートしています。後者は、割り込みを使用できない、非常に時間的制約が厳しく、キャッシュの影響を受けやすいアプリケーションを対象としています。
 
 .. note::
 
-	In Circle releases before 44.5, this driver swapped the channels of the Stereo signal. This has been corrected in this and later releases.
+	Circleの44.5より前のリリースではこのドライバはステレオ信号のチャンネルを反転させていました。この問題は本リリース以降で修正されています。
 
 .. cpp:function:: CHDMISoundBaseDevice::CHDMISoundBaseDevice (CInterruptSystem *pInterrupt, unsigned nSampleRate = 48000, unsigned nChunkSize = 384 * 10)
 
-	Constructs an instance of this class to work in DMA mode. There can be only one. ``pInterrupt`` is  a pointer to the interrupt system object. ``nSampleRate`` is the sample rate in Hz. ``nChunkSize`` is twice the number of samples (words) to be handled with one call to ``GetChunk()`` (one word per stereo channel, must be a multiple of 384). Decreasing this value also decreases the latency on this interface, but increases the IRQ load on CPU core 0.
+	DMAモードで動作するこのクラスのインスタンスを作成します。インスタンスは1つしか存在できません。 ``pInterrupt`` は割り込みシステムオブジェクトへのポインタです。 ``nSampleRate`` はHz単位のサンプルレートです。 ``nChunkSize``は ``GetChunk()`` の1回の呼び出しで処理されるサンプル数（ワード数）の2倍です（ステレオチャンネルごとに1ワード、384の倍数でなければなりません）。この値を小さくすると、このインタフェースのレイテンシは減少しますが、CPUコア0へのIRQ負荷が増加します。
 
 .. cpp:function:: CHDMISoundBaseDevice::CHDMISoundBaseDevice (unsigned nSampleRate = 48000)
 
-	Constructs an instance of this class to work in polling mode.  There can be only one. ``nSampleRate`` is the sample rate in Hz.
+	ポーリングモードで動作するこのクラスのインスタンスを作成します。インスタンスは1つしか存在できません。 ``nSampleRate`` はHz単位のサンプルレートです。
 
 .. cpp:function:: boolean CHDMISoundBaseDevice::IsWritable (void)
 
-	Returns if the data FIFO has room for at least one sample to be written? This method can be called in polling mode only.
+	データFIFOに少なくとも1つのサンプルを書き込むための空き容量があるか否かを返します。このメソッドはポーリングモードでしか呼び出すことができません。
 
 .. cpp:function:: void CHDMISoundBaseDevice::WriteSample (s32 nSample)
 
-	Writes one sample to the data FIFO. ``nSample`` is the 24-bit signed sample to be written. This method can be called in polling mode only and only, when :cpp:func:`IsWritable()` returned ``TRUE`` before. Must be called twice for each frame (for left and right channel).
+	データFIFOにサンプルを1つ書き込みます。 ``nSample`` は書き込み対象となる24ビットの符号付きサンプルです。このメソッドはポーリングモードでしか呼び出すことができず、かつ、事前に :cpp:func:`IsWritable()` が ``TRUE`` を返した場合にしか呼び出すことができません。各フレームにつき2回（左チャンネルと右チャンネル用）呼び出す必要があります。
 
 CVCHIQSoundBaseDevice
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
 
-	This class is not available on the Raspberry Pi 5.
+	このクラスはRaspberry Pi 5では利用できません。
 
 .. code-block:: cpp
 
@@ -500,11 +499,15 @@ CVCHIQSoundBaseDevice
 
 .. cpp:class:: CVCHIQSoundBaseDevice : public CSoundBaseDevice
 
-	This class provides low-level access to the VCHIQ sound service, which is able to output sound via HDMI displays with audio support, or via the 3.5" headphone jack of Raspberry Pi models, which have it. This class requires, that the :ref:`Multitasking` support and the :ref:`VCHIQ driver` are available in the system. Most of the methods, available for using this class, are provided by the base class :cpp:class:`CSoundBaseDevice`. This class description covers only the methods, which are specific to this class. This device has the name ``"sndvchiq"`` in the device name service (character device).
+	このクラスは、VCHIQサウンドサービスへの低レベルなアクセスを提供します。VCHIQサウンドサービスはオーディオ対応のHDMIディスプレイと3.5インチヘッドフォンジャックを備えたRaspberry Piモデルでサウンドを出力することができます。このクラスを使用するには、システムに :ref:`Multitasking` サポートと :ref:`VCHIQ driver` がインストールされている必要があります。このクラスで使用可能なメソッドのほとんどは基底クラスである :cpp:class:`CSoundBaseDevice` で提供されています。このクラスの説明ではこのクラス固有のメソッドについてのみ説明します。このデバイスはデバイス名サービス（キャラクタデバイス）において ``"sndvchiq"`` という名前を持ちます。
 
 .. cpp:function:: CVCHIQSoundBaseDevice::CVCHIQSoundBaseDevice (CVCHIQDevice *pVCHIQDevice, unsigned nSampleRate = 44100, unsigned nChunkSize  = 4000, TVCHIQSoundDestination Destination = VCHIQSoundDestinationAuto)
 
-	Constructs an instance of this class. There can be only one. ``pVCHIQDevice`` is a pointer to the VCHIQ interface device. ``nSampleRate`` is the sample rate in Hz (44100..48000). ``nChunkSize`` is the number of samples transferred at once. ``Destination`` is the target device, the sound data is sent to (detected automatically, if equal to ``VCHIQSoundDestinationAuto``), with these possible values:
+	このクラスのインスタンスを作成します。インスタンスは1つしか存在できません。
+	``pVCHIQDevice`` は、VCHIQインタフェースデバイスへのポインタです。 ``nSampleRate`` は、
+	Hz 単位のサンプリングレート（44100～48000）です。 ``nChunkSize`` は、一度に転送される
+	サンプル数です。 ``Destination`` は、サウンドデータが送信される宛先デバイスです
+	（ ``VCHIQSoundDestinationAuto`` の場合は自動的に検出されます）。以下の値が指定可能です。
 
 .. c:enum:: TVCHIQSoundDestination
 
@@ -515,7 +518,10 @@ CVCHIQSoundBaseDevice
 
 .. cpp:function:: void CVCHIQSoundBaseDevice::SetControl (int nVolume, TVCHIQSoundDestination Destination = VCHIQSoundDestinationUnknown)
 
-	Sets the output volume to ``nVolume`` (-10000..400, in 1/100 dB) and optionally the target device to ``Destination`` (not modified, if equal to ``VCHIQSoundDestinationUnknown``). This method can be called, while the sound data transmission is running. The following macros are defined for specifying the volume:
+	出力音量を ``nVolume`` （-10000～400、1/100 dB単位）に設定し、必要に応じて出力先を
+	``Destination`` に設定します（ ``VCHIQSoundDestinationUnknown`` の場合は変更されません）。
+	このメソッドは、サウンドデータが送信中の間も呼び出すことができます。音量を指定するために以下の
+	マクロが定義されています。
 
 .. c:macro:: VCHIQ_SOUND_VOLUME_MIN
 .. c:macro:: VCHIQ_SOUND_VOLUME_DEFAULT
@@ -523,14 +529,14 @@ CVCHIQSoundBaseDevice
 
 .. note::
 
-	The :ref:`Sound controller` provides a more generic solution for setting controls of a sound device.
+	:ref:`Sound controller` はサウンドデバイスのコンロール設定を行うためのより汎用的なソリューションを提供しています。
 
 CVCHIQSoundDevice
 ^^^^^^^^^^^^^^^^^
 
 .. note::
 
-	This class is not available on the Raspberry Pi 5.
+	このクラスはRaspberry Pi 5では利用できません。
 
 .. code-block:: cpp
 
@@ -538,27 +544,34 @@ CVCHIQSoundDevice
 
 .. cpp:class:: CVCHIQSoundDevice : private CVCHIQSoundBaseDevice
 
-	This class is a VCHIQ playback device for sound data, which is available in main memory. It extents the class :cpp:class:`CVCHIQSoundBaseDevice`, but has its own interface. The sample rate is fixed at 44100 Hz.
+	このクラスはメインメモリ上に存在するサウンドデータ用のVCHIQ再生デバイスです。 :cpp:class:`CVCHIQSoundBaseDevice` クラスを拡張していますが独自のインターフェースを持っています。サンプリングレートは44100 Hzに固定されています。
 
 .. cpp:function:: CVCHIQSoundDevice::CVCHIQSoundDevice (CVCHIQDevice *pVCHIQDevice, TVCHIQSoundDestination Destination = VCHIQSoundDestinationAuto)
 
-	Constructs an instance of this class. There can be only one. ``pVCHIQDevice`` is a pointer to the VCHIQ interface device. ``Destination`` is the target device, the sound data is sent to (see :c:enum:`TVCHIQSoundDestination` for the available options).
+	このクラスのインスタンスを作成します。インスタンスは1つしか存在できません。 ``pVCHIQDevice`` は
+	VCHIQインタフェースデバイスへのポインタです。 ``Destination`` はサウンドデータが送信される
+	ターゲットデバイスです（利用可能なオプションについては :c:enum:`TVCHIQSoundDestination` を
+	参照してください）。
 
 .. cpp:function:: boolean CVCHIQSoundDevice::Playback (void *pSoundData, unsigned nSamples, unsigned nChannels, unsigned nBitsPerSample)
 
-	Starts playback of the sound data at ``pSoundData`` via the VCHIQ sound device. ``nSamples`` is the number of samples, where for Stereo the L/R samples are count as one. ``nChannels`` is 1  for Mono or 2  for Stereo. ``nBitsPerSample`` is 8 (unsigned char sound data) or 16 (signed short sound data). Returns ``TRUE`` on success.
+	VCHIQサウンドデバイス経由で ``pSoundData`` のサウンドデータの再生を開始します。
+	``nSamples`` はサンプル数であり、ステレオの場合、L/Rのサンプルは1つとしてカウントされます。
+	``nChannels`` は、モノラルなら1、ステレオなら2です。 ``nBitsPerSample`` は8
+	（unsigned charのサウンドデータ）または16（singed shortのサウンドデータ）です。
+	成功した場合は ``TRUE`` を返します。
 
 .. cpp:function:: boolean CVCHIQSoundDevice::PlaybackActive (void) const
 
-	Returns ``TRUE``, while the playback is active.
+	再生中の場合は ``TRUE`` を返します。
 
 .. cpp:function:: void CVCHIQSoundDevice::CancelPlayback (void)
 
-	Cancels the playback. The operation takes affect with a short delay, after which ``PlaybackActive()`` returns ``FALSE``.
+	再生をキャンセルします。キャンセルされるには少し時間がかかります。これ以後、The operation takes  ``PlaybackActive()`` は ``FALSE`` を返します。
 
 .. cpp:function:: void CVCHIQSoundDevice::SetControl (int nVolume, TVCHIQSoundDestination Destination = VCHIQSoundDestinationUnknown)
 
-	See :cpp:func:`CVCHIQSoundBaseDevice::SetControl()`.
+	:cpp:func:`CVCHIQSoundBaseDevice::SetControl()` を参照してください.
 
 CUSBMIDIDevice
 ^^^^^^^^^^^^^^
@@ -569,11 +582,11 @@ CUSBMIDIDevice
 
 .. cpp:class:: CUSBMIDIDevice : public CDevice
 
-	This class is an interface device for USB Audio Class MIDI 1.0 devices. An instance of this class is automatically created, when a compatible device is found in the USB device enumeration process. Therefore only the class methods needed to use an USB MIDI device by an application are described here, not the methods used for initialization. This device has the name ``"umidiN"`` (N >= 1) in the device name service (character device).
+	このクラスはUSBオーディオクラスMIDI 1.0デバイス用のインタフェースデバイスです。USBデバイスのエヌメレーション処理において互換性のあるデバイスが検出されると、このクラスのインスタンスが自動的に作成されます。そのため、ここでは初期化に使用されるメソッドではなく、アプリケーションがUSB MIDIデバイスを使用するために必要なクラスメソッドだけを説明します。このデバイスはデバイス名サービス（キャラクタデバイス）において ``"umidiN"`` (N >= 1) という名前を持ちます。
 
 .. note::
 
-	See the `Universal Serial Bus Device Class Definition for MIDI Devices, Release 1.0 <https://usb.org/document-library/usb-midi-devices-10>`_ for information about USB MIDI packets and virtual MIDI cables!
+	USB MIDIパケットと仮想MIDIケーブルに関する情報は `Universal Serial Bus Device Class Definition for MIDI Devices, Release 1.0 <https://usb.org/document-library/usb-midi-devices-10>`_ を参照してください。
 
 .. cpp:function:: void CUSBMIDIDevice::RegisterPacketHandler (TMIDIPacketHandler *pPacketHandler)
 

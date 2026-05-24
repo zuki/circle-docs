@@ -18,3 +18,11 @@ This documentation can be built locally too. You will need a working python envi
 	make html
 
 Then open [docs/_build/html/index.html](docs/_build/html/index.html) in your web browser.
+
+手元の環境でmakeする方法
+
+```
+$ source ~/venv/bin/activate
+(venv) $ make html
+(venv) $ deactivate
+```

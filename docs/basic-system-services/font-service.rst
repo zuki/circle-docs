@@ -1,10 +1,10 @@
-Font service
-~~~~~~~~~~~~
+フォントサービス
+~~~~~~~~~~~~~~~~~
 
-Circle provides a simple display font service, which allows to convert ISO-8859-1 (Latin1) character codes into pixel information for displaying characters on dot-matrix displays.
+Circleは、ISO-8859-1（Latin1）の文字コードをドットマトリクスディスプレイの文字表示用のピクセル情報に変換する、シンプルなディスプレイフォントサービスを提供しています。
 
-System fonts
-^^^^^^^^^^^^
+システムフォント
+^^^^^^^^^^^^^^^^
 
 .. code-block:: cpp
 
@@ -12,7 +12,7 @@ System fonts
 
 .. cpp:struct:: TFont
 
-	This structure is the basic descriptor for a defined system font. The following fonts are available:
+	この構造体は定義済みのシステムフォントを表す基本的な記述子です。利用可能なフォントは以下の通りです。
 
 	===============	=======	=======	===============	============ ==========
 	Font		Width	Height	Extra height	Total height Remarks
@@ -26,11 +26,11 @@ System fonts
 	Font12x22	12	22	4		26	     ASCII only
 	===============	=======	=======	===============	============ ==========
 
-	Widths and heights are given in number of pixels. Extra height is the room reserved for the underline (cursor).
+	WidthとHeightはピクセル単位で指定されています。Extra heigtは、下線（カーソル）用に確保されたスペースです。
 
 .. c:macro:: DEFAULT_FONT
 
-	This macro defines the default system font, which is normally ``Font8x16``. The default setting can be overwritten with the system option ``DEFAULT_FONT``.
+	このマクロはデフォルトのシステムフォントを定義します。通常、 ``Font8x16`` です。このデフォルト設定はシステムオプション ``DEFAULT_FONT`` で上書きすることができます。
 
 CCharGenerator
 ^^^^^^^^^^^^^^

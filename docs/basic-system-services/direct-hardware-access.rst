@@ -1,9 +1,9 @@
 Direct hardware access
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Circle applications may need to directly read or write registers of hardware devices, if a driver for the respective device does not exist yet. This subsection describes the Circle support for accessing hardware registers.
+該当するデバイスのドライバがまだ存在しない場合、Circleアプリケーションはハードウェアデバイスのレジスタを直接読み書きする必要がある場合があります。この節では、ハードウェアレジスタへのアクセスに関するCircleのサポートについて説明します。
 
-Functions
+関数
 ^^^^^^^^^
 
 .. code-block:: c
@@ -14,58 +14,58 @@ Functions
 .. c:function:: u16 read16 (uintptr nAddress)
 .. c:function:: u32 read32 (uintptr nAddress)
 
-	Reads a value with the specified bit size from the memory-mapped I/O address ``nAddress`` and returns it.
+	メモリマップドI/Oアドレス ``nAddress`` から指定のビットサイズの値を読み取って返します。
 
 .. c:function:: void write8 (uintptr nAddress, u8 uchValue)
 .. c:function:: void write16 (uintptr nAddress, u16 usValue)
 .. c:function:: void write32 (uintptr nAddress, u32 nValue)
 
-	Writes a value with the specified bit size to the memory-mapped I/O address ``nAddress``. ``uchValue``, ``usValue`` and ``nValue`` are the respective values.
+	メモリマップドI/Oアドレス ``nAddress`` に指定のビットサイズの値を書き込みます。 ``uchValue``, ``usValue``, ``nValue`` は対応する値です。
 
 .. note::
 
-	An access to a memory-mapped I/O device register must normally be aligned to the access size.
+	通常、メモリマップドI/Oデバイスレジスタへのアクセスはアクセスサイズにアラインしていなければなりません。
 
-Macros
+マクロ
 ^^^^^^
 
-The detailed definitions for the different hardware devices of the Raspberry Pi cannot be listed here. Please read the respective header file for details.
+Raspberry Piの各種ハードウェアデバイスに関する詳細な定義についてここですべてを記載することはできません。詳細についてはそれぞれのヘッダーファイルをご参照ください。
 
 .. code-block:: c
 
 	#include <circle/bcm2835.h>
 
-This header file provides macro definitions of memory-mapped I/O addresses for all Raspberry Pi models, described in the `BCM2835 ARM Peripherals <https://datasheets.raspberrypi.com/bcm2835/bcm2835-peripherals.pdf>`_ document, especially:
+このヘッダーファイルは `BCM2835 ARM Peripherals <https://datasheets.raspberrypi.com/bcm2835/bcm2835-peripherals.pdf>`_ ドキュメントに記載されているすべてのRaspberry Piモデル向けのメモリマップドI/Oアドレスのマクロ定義を提供しています。特に以下のマクロが重要です。
 
 .. c:macro:: ARM_IO_BASE
 
-	Base address of the 16 MB sized main memory-mapped I/O block, valid on the ARM CPU of the respective Raspberry Pi model. This address is normally used from the Circle application.
+	各Raspberry PiモデルのARM CPUにおいて有効な16MBサイズの主たるメモリマップドI/Oブロックのベースアドレスです。通常、このアドレスはCircleアプリケーションから使用されます。
 
 .. c:macro:: GPU_IO_BASE
 
-	Base address of the 16 MB sized main memory-mapped I/O block, valid on the GPU co-processor. This address is used for operations, which are executed by the GPU or connected devices (e.g. DMA controllers).
+	GPUコプロセッサ上で有効な16MBサイズの主たるメモリマップドI/Oブロックのベースアドレス。このアドレスは、GPUまたは接続されたデバイス（DMAコントローラなど）によって実行される操作で使用されます。
 
 .. note::
 
-	A Raspberry Pi has several processing units. We only distinguish here between the ARM CPU, where the Circle application is running on, and all other processing units, where the firmware, accelerated graphics processing and more is executed. We call these processors the GPU or VPU. Please note that from the point of view of the boot order, the ARM CPU is the secondary co-processor.
+	Raspberry Piには複数の処理ユニットが搭載されています。ここでは、Circleアプリケーションが実行されているARM CPUとファームウェアや高速グラフィックス処理などが実行されているその他の処理ユニットだけを区別します。後者のプロセッサをGPUまたはVPUと呼びます。なお、起動順序の観点からは、ARM CPUはセカンダリコプロセッサである点にご注意ください。
 
 .. c:macro:: GPU_MEM_BASE
 
-	Base address of the lower (starting at address 0x0 on the ARM CPU) 1 GB memory address range, valid on the GPU and connected devices (e.g. DMA controllers). The legacy platform DMA controller, for instance, can only access this address space for data transfers.
+	GPUおよび接続デバイス（DMAコントローラなど）で有効な、下位（ARM CPUではアドレス0x0から始まる）1GBのメモリアドレス範囲のベースアドレス。たとえば、レガシープラットフォームのDMAコントローラはデータ転送においてこのアドレス空間でしかアクセスできません。
 
 .. c:macro:: BUS_ADDRESS(address)
 
-	Converts the memory address ``address``, valid on the ARM CPU, to a GPU bus address, valid on the GPU and connected devices.
+	ARM CPU上で有効なメモリアドレス ``address`` を、GPUおよび接続デバイス上で有効なGPUバスアドレスに変換します。
 
 .. code-block:: c
 
 	#include <circle/bcm2836.h>
 
-This header file provides macro definitions of memory-mapped I/O addresses for the Raspberry Pi 2 to 4 and compatible models, described in the `ARM Quad A7 core <https://datasheets.raspberrypi.com/bcm2836/bcm2836-peripherals.pdf>`_ document, especially:
+このヘッダーファイルは `BCM2835 ARM Peripherals <https://datasheets.raspberrypi.com/bcm2835/bcm2835-peripherals.pdf>`_ ドキュメントに記載されているRaspberry Pi 2〜4とcompatibleモデル向けのメモリマップドI/Oアドレスのマクロ定義を提供します。特に以下のマクロが需要です。
 
 .. c:macro:: ARM_LOCAL_BASE
 
-	Base address of the 256 MB sized local memory-mapped I/O block. A number of registers from this block are local to the respective ARM CPU core.
+	256 MBのローカルメモリマップドI/Oブロックのベースアドレスです。このブロック内のレジスタは各ARM CPUコアにローカルに割り当てられています。
 
 .. code-block:: c
 
@@ -79,10 +79,10 @@ This header file provides macro definitions of memory-mapped I/O addresses for t
 
 This header file provides macro definitions of memory-mapped I/O addresses for the Raspberry Pi 5, mostly described in the `RP1 Peripherals <https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf>`_ document.
 
-I/O barriers
+I/Oバリア
 ^^^^^^^^^^^^
 
-The following I/O barriers are especially required on the Raspberry Pi 1 and Zero. On other Raspberry Pi models they have no function.
+以下のI/Oバリアは特にRaspberry Pi 1とZeroで必要です。その他のRaspberry Piモデルでは、これらは機能しません。
 
 .. code-block:: c
 

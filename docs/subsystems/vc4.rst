@@ -3,12 +3,12 @@
 VC4
 ~~~
 
-The VC4 subsystem in `addon/vc4 <https://github.com/rsta2/circle/tree/master/addon/vc4>`_ provides the VCHIQ driver as an interface to the audio and accelerated graphics services, which are offered by the Raspberry Pi firmware. The accelerated graphics support is not available on the Raspberry Pi 4 and 5 and with ``AARCH = 32`` only. This section describes the components of the VC4 subsystem.
+`addon/vc4 <https://github.com/rsta2/circle/tree/master/addon/vc4>`_ にあるVC4サブシステムはRaspberry Piファームウェアが提供するオーディオとアクセレイテッドグラフィックスサービスへのインターフェースとしてVCHIQ ドライバを提供します。アクセレイテッドグラフィックス機能はRaspberry Pi 4と5では利用できません。また、 ``AARCH = 32`` でしか利用できません。このセクションではVC4サブシステムの構成要素について説明します。
 
 .. _VCHIQ driver:
 
-VCHIQ driver
-^^^^^^^^^^^^
+VCHIQドライバ
+^^^^^^^^^^^^^^
 
 .. code-block:: cpp
 
@@ -16,34 +16,34 @@ VCHIQ driver
 
 .. cpp:class:: CVCHIQDevice : public CLinuxDevice
 
-	This class is a driver for the VC host interface queue, which implements an interface to a number of service processes, which are running on the video processing unit (VPU) of the Raspberry Pi computers. Because this driver has been ported from Linux, it is based on the Linux kernel device driver emulation code in `addon/linux <https://github.com/rsta2/circle/tree/master/addon/linux>`_. The API of the VCHIQ driver is based on the C language, and is not covered by this documentation.
+	このクラスはVCHIQ (VideoCore Host Interface Queue) 用のドライバです。Raspberry Piコンピュータのビデオ処理ユニット（VPU）上で実行されている数多くのサービスプロセスへのインタフェースを実装しています。このドライバはLinuxから移植されたものであるため、 `addon/linux <https://github.com/rsta2/circle/tree/master/addon/linux>`_ ディレクトリにあるLinuxカーネルデバイスドライバエミュレーションコードに基づいています。VCHIQドライバのAPIはC言語に基づいていますがここでは扱いません。
 
 .. cpp:function:: CVCHIQDevice::CVCHIQDevice (CMemorySystem *pMemory, CInterruptSystem *pInterrupt)
 
-	Creates an instance of the VCHIQ driver class. There can be only one. ``pMemory`` and ``pInterrupt`` are pointers to the Circle memory and interrupt system objects.
-
+	VCHIQドライバクラスのインスタンスを作成します。これは1つしか存在できません。
+	``pMemory`` と ``pInterrupt`` は、Circle のメモリと割り込みシステムオブジェクトへのポインタです。
 
 .. cpp:function:: boolean CVCHIQDevice::Initialize (void)
 
-	Initializes the VCHIQ driver. Returns ``TRUE`` on success. This method is inherited from the base class ``CLinuxDevice``.
+	VCHIQドライバを初期化します。成功した場合は ``TRU`` Eを返します。このメソッドは基底クラス ``CLinuxDevice`` から継承されています。
 
-VCHIQ sound
-^^^^^^^^^^^
+VCHIQサウンド
+^^^^^^^^^^^^^^
 
-The VCHIQ sound driver class :cpp:class:`CVCHIQSoundBaseDevice` is described in the :ref:`Audio devices` section.
+VCHIQサウンドドライバクラスである :cpp:class:`CVCHIQSoundBaseDevice` については :ref:`Audio devices` セクションで説明しています。
 
-Accelerated graphics
-^^^^^^^^^^^^^^^^^^^^
+アクセレイテッドグラフィックス
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The accelerated graphics support in `addon/vc4/interface <https://github.com/rsta2/circle/tree/master/addon/vc4/interface>`_ has been ported from the Raspberry Pi OS (former Raspbian) userland libraries, which implement the following APIs:
+ `addon/vc4/interface <https://github.com/rsta2/circle/tree/master/addon/vc4/interface>`_ にあるアクセレイテッドグラフィックス機能はRaspberry Pi OS（旧Raspbian）のユーザランドライブラリから移植されたものであり、以下の API を実装しています。
 
 * EGL 1.4
 * OpenGL ES 1.1 and 2.0
 * OpenVG 1.1
 * Dispmanx (proprietary)
 
-Please see `this website <https://www.khronos.org/>`_ for detailed information about the first three APIs, which are not specific to Circle and are based on the C language.
+最初の3つのAPIの詳細については `このwebsite <https://www.khronos.org/>`_ をご覧ください。これらはCircle固有のものではなく、C言語をベースとしています。
 
 .. note::
 
-	The accelerated graphics support is not available on the Raspberry Pi 4 and 5 and with ``AARCH = 32`` only.
+	アクセレイテッドグラフィックス機能はRaspberry Pi 4と5では利用できません。また、 ``AARCH = 32`` でしか利用できません。

@@ -50,11 +50,11 @@ CDMAChannel
 
 .. cpp:function:: void CDMAChannel::SetupCyclicIOWrite (uintptr ulIOAddress, const void *ppSources[], unsigned nBuffers, size_t ulLength, TDREQ DREQ)
 
-	Setup a cyclic DMA write transfer to the I/O port ``ulIOAddress`` (ARM-side or bus address) for ``nBuffers`` concatenated DMA buffers (max. 4) at ``ppSources`` (pointer to array of pointers) with length ``ulLength`` bytes per buffer. ``DREQ`` paces the transfer (see :cpp:func:`CDMAChannel::SetupIOWrite` for the possible devices). The transfer starts from first buffer again, when last buffer has been sent.
+	``ppSources`` （ポインタの配列へのポインタ）にある一つ ``ulLength`` バイトの長さの ``nBuffers`` 個（最大4個）のバッファを連結したDMAバッファのI/Oポート ``ulIOAddress`` （ARM側またはバスアドレス）への周期的DMA書き込み転送を設定します。 ``DREQ`` は転送のペースを制御します（利用可能なデバイスについては :cpp:func:`CDMAChannel::SetupIOWrite` を参照してください）。最後のバッファが送信されると、最初のバッファから転送が再び開始されます。
 
 .. cpp:function:: void CDMAChannel::SetupMemCopy2D (void *pDestination, const void *pSource, size_t nBlockLength, unsigned nBlockCount, size_t nBlockStride, unsigned nBurstLength = 0)
 
-	Setup a 2D DMA memory copy transfer of ``nBlockCount`` blocks of ``nBlockLength`` length from ``pSource`` to ``pDestination``. Skip ``nBlockStride`` bytes after each block on destination. Source is continuous. The destination cache, if any, is not touched. ``nBurstLength`` > 0 increases speed, but may congest the system bus. This method can be used to copy data to the framebuffer and is not supported with ``DMA_CHANNEL_LITE``.
+	1つ ``nBlockLength`` の長さの ``nBlockCount`` 個のブロックを ``pSource`` から ``pDestination`` へ転送する2D DMAメモリコピーを設定します。宛先では各ブロックの後に ``nBlockStride`` バイト分スキップします。ソースは連続しています。宛先のキャッシュ（存在する場合）にはアクセスしません。 ``nBurstLength`` > 0 にすると速度は向上しますが、システムバスが混雑する可能性があります。このメソッドはフレームバッファへのデータコピーに使用できますが ``DMA_CHANNEL_LITE`` ではサポートされていません。
 
 .. cpp:function:: void CDMAChannel::SetCompletionRoutine (TDMACompletionRoutine *pRoutine, void *pParam)
 

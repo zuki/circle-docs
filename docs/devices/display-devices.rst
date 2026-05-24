@@ -1,7 +1,7 @@
-Display devices
-~~~~~~~~~~~~~~~
+ディスプレイデバイス
+~~~~~~~~~~~~~~~~~~~~
 
-This section covers device driver classes, which are used to control different dot-matrix displays with HDMI, SPI or I2C interface. These classes have their own interface and are not derived from the class :cpp:class:`CDevice`.
+このセクションではHDMI、SPI、I2Cの各インタフェースを介してさまざまなドットマトリクスディスプレイを制御するために使用されるデバイスドライバクラスについて説明します。これらのクラスは独自のインターフェースを持ち、  :cpp:class:`CDevice` クラスを継承していません。
 
 CDisplay
 ^^^^^^^^
@@ -12,23 +12,23 @@ CDisplay
 
 .. cpp:class:: CDisplay
 
-	The dot-matrix display support is based on the class ``CDisplay``. It provides methods for color conversion between different color models (logical and physical) and virtual methods, which form a general interface for displaying pixel information on a display (a single pixel or an area (rectangle) of pixels).
+	ドットマトリクスディスプレイのサポートは ``CDisplay`` クラスに基づいています。このクラスは、様々な（論理的、物理的）色モデル間の色変換を行うメソッドとディスプレイ上にピクセル情報（単一のピクセルまたは（矩形の）ピクセル領域）を表示するための汎用インターフェースを構成する仮想メソッドを提供します。
 
-	It defines a logical color type (``TColor``), which is RGB888, with some predefined colors. Colors of this type can be converted into different color models, used on the display hardware. These colors are represented by the type ``TRawColor``. The following color models are supported at the moment:
+	このクラスは論理色型 (``TColor``)を定義しています。それはRGB888形式であり、いくつかの事前定義された色が用意されています。この型の色は、ディスプレイハードウェアで使用されるさまざまな色モデルに変換可能です。これらの色は ``TRawColor`` 型により表現されます。現在、以下の色モデルがサポートされています。
 
 .. cpp:enum:: CDisplay::TColorModel
 
-	A physical (hardware) display has to use one of the following physical color models:
+	物理的な（ハードウェア）ディスプレイは以下のいずれかの物理色モデルを使用する必要があります。
 
 	* RGB565 (0bRRRRRGGG'GGGBBBBB)
 	* RGB565_BE (0bGGGBBBBB'RRRRRGGG, big endian)
 	* ARGB8888 (0bAAAAAAAA'RRRRRRRR'GGGGGGGG'BBBBBBBB)
-	* I1 (black-white)
-	* I8 (index into palette)
+	* I1 (白黒)
+	* I8 (パレットのインデックス)
 
 .. cpp:enum:: CDisplay::TColor
 
-	Predefines the following logical colors (RGB888):
+	以下の論理色（RGB888）を事前定義しています。
 
 	* Black
 	* Red
@@ -47,7 +47,7 @@ CDisplay
 	* BrightCyan
 	* BrightWhite
 
-	The following aliases for logical colors are also defined:
+	以下の論理色のエイリアスも定義されています。
 
 	* NormalColor (BrightWhite)
 	* HighColor (BrightRed)
@@ -55,15 +55,15 @@ CDisplay
 
 .. c:macro:: DISPLAY_COLOR(red, green, blue)
 
-	Defines a logical display color (RGB888). The parameters can have a value from 0 to 255.
+	論理表示色（RGB888）を定義します。パラメータの値は0から255までの範囲で指定できます。
 
 .. cpp:type:: CDisplay::TRawColor
 
-	Physical color (matching the color model)
+	（色モデルに合致した）物理職
 
 .. cpp:struct:: CDisplay::TArea
 
-	Defines an area of pixels on a display with the following (0-based) coordinates:
+	次の（0ベースの）座標でディスプレイ上のピクセル領域を定義します。
 
 	* x1
 	* x2
@@ -109,7 +109,7 @@ CDisplay
 
 .. cpp:type:: void CDisplay::TAreaCompletionRoutine (void *pParam)
 
-.. note:: Some display drivers do not implement an asynchronous usage of this function and call the completion routine directly before returning from this method.
+.. note:: 一部のディスプレイドライバでは、この関数の非同期的な使用が実装されておらず、このメソッドから戻る直前に完了ルーチンを直接呼び出しています。
 
 .. cpp:function:: virtual CDisplay *CDisplay::GetParent (void) const
 
@@ -132,11 +132,11 @@ CWindowDisplay
 
 .. cpp:class:: CWindowDisplay
 
-	The class ``CWindowDisplay`` is a :cpp:class:`CDisplay` instance in a ``CDisplay`` and allows to use multiple (non-overlapping) windows on a display. In this window a :cpp:class:`CTerminalDevice`, :cpp:class:`C2DGraphics` or :cpp:class:`CLVGL` instance can be displayed.
+	クラス ``CWindowDisplay`` は ``CDisplay`` 内の :cpp:class:`CDisplay` インスタンスであり、ディスプレイ上で複数の（重ならない）ウィンドウを使用できるようにします。このウィンドウには  :cpp:class:`CTerminalDevice`, :cpp:class:`C2DGraphics`, :cpp:class:`CLVGL` のインスタンスを表示することができます。
 
-	Most of the methods, provided by this class, are described for its base class :cpp:class:`CDisplay`.
+	このクラスが提供するメソッドのほとんどはその基底クラスである :cpp:class:`CDisplay` で説明されています。
 
-	The `sample/43-multiwindow` demonstrates this class in a multi-core application.
+	`sample/43-multiwindow` はマルチコアアプリケーションにおけるこのクラスの使用例を示しています。
 
 .. cpp:function:: CWindowDisplay::CWindowDisplay (CDisplay *pDisplay, const TArea &rArea)
 
@@ -151,21 +151,21 @@ CBcmFrameBuffer
 
 .. cpp:class:: CBcmFrameBuffer : public CDisplay
 
-	This class is a driver for the frame buffer device(s), provided by the firmware of the Raspberry Pi. The Raspberry Pi 4, 400 and the Compute Module 4 support multiple frame buffer devices, all other models only one. A frame buffer is basically an address range in main memory, which is continuously read by the firmware in background, to be displayed on a HDMI or composite TV display. Writing to this memory address range modifies the displayed image. The Raspberry Pi firmware supports frame buffers with different widths, heights and depths of the pixel information. If one wants to display text in a frame buffer, the characters must be formed from a character generator in the software. The firmware does not support text displays on its own.
+	このクラスはRaspberry Piのファームウェアにより提供されているフレームバッファデバイス用のドライバです。Raspberry Pi 4、400、Compute Module 4は複数のフレームバッファデバイスに対応していますが、その他のモデルは1つのみに対応しています。フレームバッファとは基本的にはメインメモリ内のアドレス範囲のことであり、HDMIやコンポジット接続のテレビディスプレイに表示されるよう、ファームウェアがバックグラウンドで継続的に読み取りを行います。このメモリアドレス範囲に書き込むと表示される画像が変更されます。Raspberry Piのファームウェアは様々な幅、高さ、ピクセル情報の深度を持つフレームバッファをサポートしています。フレームバッファにテキストを表示したい場合はソフトウェアの文字生成機能を使用して文字を生成する必要があります。ファームウェア自体はテキスト表示をサポートしていません。
 
 .. note::
 
-	To be able to use more than one frame buffer device, the option ``max_framebuffers=N`` (N > 1) is required in the file *config.txt* on the SD card.
+	複数のフレームバッファデバイスを使用するにはSDカードの *config.txt* ファイルでオプション ``max_framebuffers=N`` (N > 1) を指定する必要があります。
 
-The class ``CBcmFrameBuffer`` provides the methods of the class :cpp:class:`CDisplay` and addtionally the following methods:
+クラス ``CBcmFrameBuffer`` はクラス :cpp:class:`CDisplay` のメソッドに加え、以下のメソッドを提供します。
 
 .. cpp:function:: CBcmFrameBuffer::CBcmFrameBuffer (unsigned nWidth, unsigned nHeight, unsigned nDepth, unsigned nVirtualWidth = 0, unsigned nVirtualHeight = 0, unsigned nDisplay = 0, boolean bDoubleBuffered = FALSE)
 
-	Constructs a frame buffer device object with ``nWidth`` * ``nHeight`` pixels. If both parameters are zero, the frame buffer is automatically created with the default size, which is normally the maximum supported size of the connected display. Each pixel has a depth of ``nDepth`` bits (4, 8, 16, 24 or 32).
+	``nWidth`` * ``nHeight`` ピクセルのフレームバッファデバイスオブジェクトを作成します。両方のパラメータが 0 の場合、フレームバッファはデフォルトサイズで自動的に作成されます。デフォルトサイズは通常、接続されているディスプレイがサポートする最大サイズとなります。各ピクセルの色深度は ``nDepth`` ビット（4、8、16、24、32のいずれか）です。
 
-	The memory range of the frame buffer may be larger than the displayed physical display size. This can be used to quickly switch the displayed image (see :cpp:func:`SetVirtualOffset()`). The optional virtual display size is ``nVirtualWidth`` * ``nVirtualHeight`` pixels. If ``bDoubleBuffered`` is ``TRUE``, the virtual display height is automatically set to twice the physical display size, if ``nVirtualWidth`` and ``nVirtualHeight`` are specified as 0.
+	フレームバッファのメモリ範囲は表示される物理ディスプレイのサイズよりも大きくても構いません。これは表示画像を素早く切り替えるために使用できます(:cpp:func:`SetVirtualOffset()` を参照 )。仮想ディスプレイサイズ ``nVirtualWidth`` * ``nVirtualHeight`` ピクセルはオプションです。 ``bDoubleBuffered`` が ``TRUE`` の場合、 ``nVirtualWidth`` と ``nVirtualHeight`` が 0 に指定されていると、仮想ディスプレイの高さは自動的に物理ディスプレイサイズの 2 倍に設定されます。
 
-	``nDisplay`` is the zero-based ID number of the frame buffer device, which is transferred to the firmware to select a specific display on the Raspberry Pi 4, 400 and the Compute Module 4.
+	``nDisplay`` はフレームバッファデバイスの0から始まるID番号であり、Raspberry Pi 4、400、Compute Module 4で指定のディスプレイを選択するためにファームウェアに渡されます。
 
 .. note::
 
@@ -189,7 +189,7 @@ The class ``CBcmFrameBuffer`` provides the methods of the class :cpp:class:`CDis
 
 .. note::
 
-	This method does succeed on Raspberry Pi 1-3 and Zero, even when there is no display connected. On the Raspberry Pi 4, 400 and Compute Module 4 this method fails in this case.
+	このメソッドはRaspberry Pi 1～3とZeroではディスプレイが接続されていない場合でも成功しますが、Raspberry Pi 4、400、Compute Module 4では失敗します。
 
 .. cpp:function:: u32 CBcmFrameBuffer::GetWidth (void) const
 .. cpp:function:: u32 CBcmFrameBuffer::GetHeight (void) const
